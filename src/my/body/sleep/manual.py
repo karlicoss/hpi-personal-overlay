@@ -131,6 +131,7 @@ def pre_dataframe():
                 'error': str(e),
             }
         else:
+            # TODO just dump the dict?
             yield {
                 'dt'    : e.dt,
                 'dreams': e.dreams,
@@ -154,3 +155,6 @@ def stats() -> Stats:
     return stat(dataframe)
 
 
+
+# TODO maybe need correlate function for two dt indexed dataframes?
+# that way could somewhat simplify error handling?
