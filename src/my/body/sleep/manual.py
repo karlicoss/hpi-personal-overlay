@@ -116,6 +116,7 @@ def iter_sleep_table() -> Iterator[Result]:
         )
 
 
+# todo make sure cachew can handle dicts with dt? not sure
 def pre_dataframe():
     for e in iter_sleep_table():
         if isinstance(e, Exception):
@@ -138,6 +139,8 @@ def pre_dataframe():
 
 
 from ...core.pandas import DataFrameT, check_dataframe as cdf
+# TODO make sure error column is always preset... maybe also add to cdf?
+# also it needs to be str, so contain None, not NaN?
 @cdf
 def dataframe() -> DataFrameT:
     import pandas as pd # type: ignore
@@ -149,3 +152,5 @@ def dataframe() -> DataFrameT:
 from ...core import stat, Stats
 def stats() -> Stats:
     return stat(dataframe)
+
+
