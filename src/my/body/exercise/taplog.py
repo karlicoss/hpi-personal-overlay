@@ -1,8 +1,10 @@
-from typing import Dict
+from typing import Dict, Iterable
 
-from ... import taplog as T
 from ...core import Res
-from . import parser
+from ...core.common import mcachew
+from ...error import attach_dt
+from ... import taplog as T
+from . import parser, common
 
 from my.config import exercise as user_config
 
@@ -15,9 +17,9 @@ def overrides() -> Dict[str, str]:
     # sqlite3 taplog.db 'SELECT printf("| %6d | %s |", _id, lower(note)) FROM log WHERE cat1="ex" ORDER BY lower(note)'
     # todo use orgmode provider directly??
     from porg import Org
-    # TODO should use all org notes and just query from them?. it's quite slow...
+    # todo should use all org notes and just query from them?. it's quite slow...
     wlog = Org.from_file(user_config.workout_log)
-    table = wlog.xpath('//org[heading="Taplog overrides"]//table')
+    table = wlog.xpath_all('//org[heading="Taplog overrides"]//table')[0]
     res = {}
     for row in table.lines:
         id   = row['id']
@@ -26,7 +28,7 @@ def overrides() -> Dict[str, str]:
     return res
 
 
-def entries() -> Res[T.Entry]:
+def _with_overrides() -> Iterable[Res[T.Entry]]:
     ov = overrides()
     patched = 0
     for e in T.by_button('ex'):
@@ -39,19 +41,28 @@ def entries() -> Res[T.Entry]:
         yield RuntimeError('no overrides were matched')
 
 
-def tagged() -> Res[str]:
-    for e in entries():
+@mcachew
+def entries() -> Iterable[Res[common.Exercise]]:
+    for e in _with_overrides():
         if isinstance(e, Exception):
             yield e
             continue
         tags = parser.tags(e.note)
         if len(tags) != 1:
-            yield RuntimeError(f'expected single match, got {tags}: | {e.id:6} | {e.note} |')
+            yield attach_dt(
+                RuntimeError(f'expected single match, got {tags}: | {e.id:6} | {e.note} |'),
+                dt=e.timestamp,
+            )
         else:
             [t] = tags
-            yield t
+            yield common.Exercise(
+                dt=e.timestamp,
+                name=t,
+                reps=e.number, # FIXME sets/tabata
+                note=e.note,
+            )
 
 
 from ...core import stat, Stats
 def stats() -> Stats:
-    return stat(tagged)
+    return stat(entries)
