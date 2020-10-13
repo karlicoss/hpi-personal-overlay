@@ -2,6 +2,7 @@ from typing import Dict
 
 from ... import taplog as T
 from ...core import Res
+from . import parser
 
 from my.config import exercise as user_config
 
@@ -35,9 +36,22 @@ def entries() -> Res[T.Entry]:
             patched += 1
         yield e
     if patched == 0:
-        yield RuntimeError('no mixins were matched')
+        yield RuntimeError('no overrides were matched')
+
+
+def tagged() -> Res[str]:
+    for e in entries():
+        if isinstance(e, Exception):
+            yield e
+            continue
+        tags = parser.tags(e.note)
+        if len(tags) != 1:
+            yield RuntimeError(f'expected single match, got {tags}: | {e.id:6} | {e.note} |')
+        else:
+            [t] = tags
+            yield t
 
 
 from ...core import stat, Stats
 def stats() -> Stats:
-    return stat(entries)
+    return stat(tagged)
