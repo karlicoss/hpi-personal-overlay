@@ -4,7 +4,8 @@ from ...core import Res
 from ...core.common import mcachew
 from ...error import attach_dt
 from ... import taplog as T
-from . import parser, common
+from . import parser
+from .common import Exercise
 
 from my.config import exercise as user_config
 
@@ -42,7 +43,7 @@ def _with_overrides() -> Iterable[Res[T.Entry]]:
 
 
 @mcachew
-def entries() -> Iterable[Res[common.Exercise]]:
+def entries() -> Iterable[Res[Exercise]]:
     for e in _with_overrides():
         if isinstance(e, Exception):
             yield e
@@ -55,7 +56,7 @@ def entries() -> Iterable[Res[common.Exercise]]:
             )
         else:
             [k] = kinds
-            yield common.Exercise(
+            yield Exercise(
                 dt=e.timestamp,
                 name=k,
                 reps=e.number, # FIXME sets/tabata

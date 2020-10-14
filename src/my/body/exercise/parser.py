@@ -54,3 +54,14 @@ def kinds(x: str) -> List[Optional[str]]:
                 keys = [a]
 
     return [MATCHERS[k] for k in keys]
+
+
+# todo exercise hint?? to tell apart seconds & reps
+def extract_reps(x: str) -> float:
+    x = x.lower()
+    # findall wants non-capturing groups...
+    res = re.findall(r'\d+(?:\.\d+)?', x)
+    if len(res) != 1:
+        raise RuntimeError(f'expected single match, got {res}: {x}')
+    else:
+        return float(res[0])
