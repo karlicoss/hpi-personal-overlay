@@ -47,17 +47,17 @@ def entries() -> Iterable[Res[common.Exercise]]:
         if isinstance(e, Exception):
             yield e
             continue
-        tags = parser.tags(e.note)
-        if len(tags) != 1:
+        kinds = parser.kinds(e.note)
+        if len(kinds) != 1:
             yield attach_dt(
-                RuntimeError(f'expected single match, got {tags}: | {e.id:6} | {e.note} |'),
+                RuntimeError(f'expected single match, got {kinds}: | {e.id:6} | {e.note} |'),
                 dt=e.timestamp,
             )
         else:
-            [t] = tags
+            [k] = kinds
             yield common.Exercise(
                 dt=e.timestamp,
-                name=t,
+                name=k,
                 reps=e.number, # FIXME sets/tabata
                 note=e.note,
             )

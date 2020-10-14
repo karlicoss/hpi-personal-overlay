@@ -5,7 +5,7 @@ import re
 from typing import List, Optional
 
 
-TAGGERS = {
+MATCHERS = {
     'ping'          : 'ping pong'        ,
 
     'push ups?'     : 'push-up'          ,
@@ -15,6 +15,7 @@ TAGGERS = {
     'dips'          : 'dip'              ,
     'step ups'      : 'step-up'          ,
     'l[- ]sits?'    : 'l-sit'            ,
+    'squats'        : 'squat'            ,
     'pistol squats?': 'pistol squat'     ,
     'double under'  : 'skipping'         ,
     'chin ups?'     : 'chin-up'          ,
@@ -22,6 +23,8 @@ TAGGERS = {
 
     'pull ups?'     : 'pull-up'          ,
     'l pull ups?'   : 'l pull-up'        ,
+
+    'hollow rocks?' : 'hollow rock'      ,
 
     # todo warnings if there are too many of these?
     'leg raises?'     : None,
@@ -33,21 +36,21 @@ TAGGERS = {
 }
 
 
-def tags(x: str) -> List[Optional[str]]:
+def kinds(x: str) -> List[Optional[str]]:
     x = x.lower()
     keys = [
-        m for m in TAGGERS
+        m for m in MATCHERS
         if re.search(rf'(^|\W){m}(\W|$)', x) is not None
     ]
     # hacky. if there only two, maybe can resolve the tie by picking more specific one?
     if len(keys) == 2:
         [a, b] = keys
-        ma = TAGGERS[a]
-        mb = TAGGERS[b]
+        ma = MATCHERS[a]
+        mb = MATCHERS[b]
         if ma is not None and mb is not None:
             if ma in mb:
                 keys = [b]
             elif mb in ma:
                 keys = [a]
 
-    return [TAGGERS[k] for k in keys]
+    return [MATCHERS[k] for k in keys]
