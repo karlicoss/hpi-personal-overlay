@@ -1,6 +1,7 @@
 '''
 Some helpers for manual exercise parsing
 '''
+from datetime import datetime
 from functools import lru_cache
 import re
 from typing import Dict, Optional, List, Tuple
@@ -56,7 +57,9 @@ def extract_sets_reps(x: str, kind: Optional[Spec]=None) -> Tuple[int, float]:
     if len(res) == 1:
         # ok, unique match, actually extract sets & reps
         [ss, rs] = re.split('[ x]+', res[0])
-        return int(ss), float(rs)
+        sets = int(ss)
+        assert sets > 0
+        return sets, float(rs)
     # otherwise, assume it's a single set
     sets = 1
     res = re.findall(frgx, x)
@@ -64,6 +67,18 @@ def extract_sets_reps(x: str, kind: Optional[Spec]=None) -> Tuple[int, float]:
         raise RuntimeError(f'reps: expected single match, got {res}: {x}')
     reps = float(res[0])
     return (sets, reps)
+
+
+from ...orig.my.core.orgmode import parse_org_datetime
+def extract_dt(x: str) -> Tuple[Optional[datetime], str]:
+    ress = re.findall(r'\[.*\]', x)
+    if len(ress) != 1:
+        # todo throw if > 0?
+        return (None, x)
+    r = ress[0]
+    dt = parse_org_datetime(r)
+    x = x.replace(r, '') # meh
+    return (dt, x)
 
 
 def extract_extra(x: str) -> str:
@@ -94,3 +109,13 @@ def test_extract_extra() -> None:
     assert extract_extra(
         '3x12 dips slow tabata 60/240 interleaved'
     ).strip() == '3x12 dips slow  interleaved'
+
+
+def test_extract_dt() -> None:
+    dt, rest = extract_dt('** [2020-10-10 Sat 10:26] 90 sec')
+    assert dt is not None
+    assert rest == '**  90 sec'
+
+    dt, rest = extract_dt('whatever [123')
+    assert dt is None
+    assert rest == 'whatever [123'
