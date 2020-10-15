@@ -51,10 +51,10 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
             dt = c.created
             assert dt is not None
             # todo attach dt to the exception?
-            reps = parser.extract_reps(c.heading)
+            reps = parser.extract_reps(c.heading, kind=kind)
             exs.append(Exercise(
                 dt=dt,
-                name=kind,
+                kind=kind.kind,
                 reps=reps,
                 note=c.heading, # todo + body?
             ))
@@ -63,10 +63,10 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
         # otherwise, treat it as the set log
         dt = o.created
         assert dt is not None
-        reps = parser.extract_reps(heading)
+        reps = parser.extract_reps(heading, kind=kind)
         yield Exercise(
             dt=dt,
-            name=kind,
+            kind=kind.kind,
             reps=reps,
             note=heading,
         )
@@ -91,7 +91,7 @@ def _from_file(f: Path) -> Iterable[Res[Exercise]]:
                 yield attach_dt(err, dt=dt)
 
 
-def _raw() -> Iterable[Res[O.OrgNote]]:
+def _raw() -> Iterable[Res[Exercise]]:
     for p in O.query().files:
         yield from _from_file(p)
 

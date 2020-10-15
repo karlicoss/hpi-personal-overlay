@@ -58,7 +58,7 @@ def entries() -> Iterable[Res[Exercise]]:
             [k] = kinds
             yield Exercise(
                 dt=e.timestamp,
-                name=k,
+                kind=k.kind,
                 reps=e.number, # FIXME sets/tabata
                 note=e.note,
             )

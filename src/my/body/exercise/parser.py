@@ -1,67 +1,57 @@
 '''
 Some helpers for manual exercise parsing
 '''
+from functools import lru_cache
 import re
-from typing import List, Optional
+from typing import Dict, Optional, List
 
 
-MATCHERS = {
-    'ping'          : 'ping pong'        ,
-
-    'push ups?'     : 'push-up'          ,
-    'diamond'       : 'diamond push-up'  ,
-    'oapu'          : 'one armed push-up',
-
-    'dips'          : 'dip'              ,
-    'step ups'      : 'step-up'          ,
-    'l[- ]sits?'    : 'l-sit'            ,
-    'squats'        : 'squat'            ,
-    'pistol squats?': 'pistol squat'     ,
-    'double under'  : 'skipping'         ,
-    'chin ups?'     : 'chin-up'          ,
-    'skipping'      : 'skipping'         ,
-
-    'pull ups?'     : 'pull-up'          ,
-    'l pull ups?'   : 'l pull-up'        ,
-
-    'hollow rocks?' : 'hollow rock'      ,
-
-    # todo warnings if there are too many of these?
-    'leg raises?'     : None,
-    'chest resistance': None,
-    'abs? roll(s?|er)': None,
-    'handstands?'     : None,
-    'door strap'      : None, # ????
-    'sore'            : None, # todo not sure if really need to keep?
-}
+from .specs import Spec, MATCHERS, ignore
 
 
-def kinds(x: str) -> List[Optional[str]]:
+@lru_cache(1)
+def _matchers() -> Dict[str, Spec]:
+    res = {}
+    for k, v in MATCHERS.items():
+        vv: Spec
+        if v is None:
+            vv = ignore
+        elif isinstance(v, Spec):
+            vv = v
+        else:
+            vv = Spec(v)
+        res[k] = vv
+    return res
+
+
+def kinds(x: str) -> List[Spec]:
+    M = _matchers()
     x = x.lower()
     keys = [
-        m for m in MATCHERS
+        m for m in M
         if re.search(rf'(^|\W){m}(\W|$)', x) is not None
     ]
     # hacky. if there only two, maybe can resolve the tie by picking more specific one?
     if len(keys) == 2:
         [a, b] = keys
-        ma = MATCHERS[a]
-        mb = MATCHERS[b]
-        if ma is not None and mb is not None:
-            if ma in mb:
-                keys = [b]
-            elif mb in ma:
-                keys = [a]
+        ma: Spec = M[a]
+        mb: Spec = M[b]
+        if ma.kind in mb.kind:
+            keys = [b]
+        elif mb.kind in ma.kind:
+            keys = [a]
 
-    return [MATCHERS[k] for k in keys]
+    return [M[k] for k in keys]
 
 
-# todo exercise hint?? to tell apart seconds & reps
-def extract_reps(x: str) -> float:
+def extract_reps(x: str, kind: Optional[Spec]=None) -> Optional[float]:
+    if kind is not None and not kind.has_reps:
+        # todo not sure... might want to return None here?
+        return 0.0
     x = x.lower()
     # findall wants non-capturing groups...
     res = re.findall(r'\d+(?:\.\d+)?', x)
     if len(res) != 1:
-        raise RuntimeError(f'expected single match, got {res}: {x}')
+        raise RuntimeError(f'reps: expected single match, got {res}: {x}')
     else:
         return float(res[0])
