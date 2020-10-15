@@ -1,5 +1,6 @@
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
 from ...core import Res, LazyLogger
 from ...core.cachew import cache_dir
@@ -17,6 +18,16 @@ logger = LazyLogger(__name__)
 
 _TAG = 'wlog'
 
+
+def asdt(x) -> Optional[datetime]:
+    if x is None:
+        return None
+    if isinstance(x, datetime):
+        return x
+    else:
+        return None
+
+
 def _get_outlines(f: Path) -> Iterable[Res[Org]]:
     def extract(cur: Org) -> Iterable[Res[Org]]:
         has_org_tag = _TAG in cur.tags
@@ -30,7 +41,7 @@ def _get_outlines(f: Path) -> Iterable[Res[Org]]:
             else:
                 yield attach_dt(
                     RuntimeError(f'expected single match, got {kinds}: {cur}'),
-                    dt=cur.created,
+                    dt=asdt(cur.created),
                 )
 
         for c in cur.children:
@@ -44,32 +55,31 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
     heading = o.heading
     [kind] = parser.kinds(heading) # todo kinda annoying to do it twice..
 
-    if len(o.children) > 0:
-        # try to process as list of sets (date + rep)
-        exs = []
-        for c in o.children:
-            dt = c.created
-            assert dt is not None
-            # todo attach dt to the exception?
-            reps = parser.extract_reps(c.heading, kind=kind)
-            exs.append(Exercise(
-                dt=dt,
-                kind=kind.kind,
-                reps=reps,
-                note=c.heading, # todo + body?
-            ))
-        yield from exs
-    else:
-        # otherwise, treat it as the set log
-        dt = o.created
+    # FIXME: need shared attributes
+
+    def aux(c: Org):
+        dt = asdt(c.created)
         assert dt is not None
+        # todo attach dt to the exception?
+
+        heading = c.heading
+        heading = parser.extract_extra(heading)
+
         reps = parser.extract_reps(heading, kind=kind)
-        yield Exercise(
+        return Exercise(
             dt=dt,
             kind=kind.kind,
             reps=reps,
-            note=heading,
+            note=heading, # TODO body?
         )
+
+    # FIXME it's possible to have an exrcise with a comment... then it will not be parsed at all
+    if len(o.children) > 0:
+        # try to process as list of sets (date + rep)
+        yield from [aux(c) for c in o.children]
+    else:
+        # otherwise, treat it as the set log
+        yield from [aux(o)]
 
 
 @mcachew(
@@ -81,7 +91,7 @@ def _from_file(f: Path) -> Iterable[Res[Exercise]]:
         if isinstance(o, Exception):
             yield o
         else:
-            dt = o.created
+            dt = asdt(o.created)
             try:
                 yield from org_to_exercise(o)
             except Exception as e:

@@ -55,3 +55,24 @@ def extract_reps(x: str, kind: Optional[Spec]=None) -> Optional[float]:
         raise RuntimeError(f'reps: expected single match, got {res}: {x}')
     else:
         return float(res[0])
+
+
+def extract_extra(x: str) -> str:
+    repls = [
+        (r'(\d+)\s*kg vest'                             , ''),
+        (r'2x5\s*kg(?: (?:ankle|wrist|elbow))? weights?', ''),
+        (r'tabata \d+/\d+'                              , ''),
+    ]
+    for f, t in repls:
+        x = re.sub(f, t, x)
+    return x
+
+
+# todo parameterize
+def test_extract_extra() -> None:
+    assert extract_extra(
+        '60 squats + 2x5kg elbow weights + 10kg vest'
+    ).strip() == '60 squats +  +'
+    assert extract_extra(
+        '3x12 dips slow tabata 60/240 interleaved'
+    ).strip() == '3x12 dips slow  interleaved'
