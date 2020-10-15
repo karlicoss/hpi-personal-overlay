@@ -11,6 +11,7 @@ class Spec(NamedTuple):
 
 S = Spec
 ping_pong = S('ping pong'              )
+push_up   = S('push-up'                )
 ignore    = S('ignore' , has_reps=False)
 sore      = S('sore'   , has_reps=False)
 
@@ -28,7 +29,7 @@ SpecIsh = Union[Spec, str]
 MATCHERS: Dict[str, Optional[SpecIsh]] = {
     'ping'          : ping_pong          ,
 
-    'push ups?'     : 'push-up'          ,
+    'push ups?'     : push_up            ,
     'diamond'       : 'diamond push-up'  ,
     'oapu'          : 'one armed push-up',
 
@@ -62,6 +63,7 @@ MATCHERS: Dict[str, Optional[SpecIsh]] = {
     'leg raises?'      : None,
     'chest resistance' : None,
     'abs? roll(s?|er)' : None,
+    'abs? wheel'       : None,
     'handstands?'      : None,
     'door strap'       : None,
     'plank'            : None,

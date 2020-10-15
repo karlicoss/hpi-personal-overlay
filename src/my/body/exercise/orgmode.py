@@ -65,7 +65,8 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
         heading = c.heading
         heading = parser.extract_extra(heading)
 
-        reps = parser.extract_reps(heading, kind=kind)
+        sets, reps = parser.extract_sets_reps(heading, kind=kind)
+        # TODO??
         return Exercise(
             dt=dt,
             kind=kind.kind,
