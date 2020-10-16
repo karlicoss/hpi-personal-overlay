@@ -87,7 +87,7 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
     body_ok = ilen(x for x in body_res if isinstance(x, Exercise))
 
     # or, treat it as the sets x rep log
-    head_res = list(aux(o.heading))
+    head_res = list(aux(heading))
     head_ok = ilen(x for x in head_res if isinstance(x, Exercise))
 
     if body_ok < 2: # kinda arbitrary, but I guess unlikely
@@ -151,6 +151,10 @@ this should be handled by workout processor.. need to test?
 - [2020-10-04 Sun 14:00] 25
 - [2020-10-04 Sun 14:14] 21.5F
 - [2020-10-04 Sun 14:33] 16.5F
+* [2019-01-05 Sat 13:03] static hollow leg holds tabata 120/240 :wlog:good:
+** 120 secs
+** 90 secs (gave up)
+** 120 secs
 '''
     from porg import Org
     o = Org.from_string(s).children[0]
@@ -159,6 +163,7 @@ this should be handled by workout processor.. need to test?
         assert not isinstance(x, Exception)
         assert x.dt is not None
         assert x.reps == 90
+
     o = Org.from_string(s).children[1]
     yy = list(org_to_exercise(o))[1:]
     assert len(yy) == 4 # first item is a comment
@@ -168,3 +173,10 @@ this should be handled by workout processor.. need to test?
         reps = y.reps
         assert reps is not None
         assert reps > 15 # todo more specific tests
+    o = Org.from_string(s).children[2]
+    zz = list(org_to_exercise(o))
+    [a, b, c] = zz
+    assert isinstance(b, Exercise)
+    assert isinstance(c, Exercise)
+    assert b.reps == 90
+    assert c.reps == 120
