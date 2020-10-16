@@ -13,7 +13,7 @@ from . import taplog, orgmode
 @cdf
 def dataframe() -> DataFrameT:
     pre_df = (
-        error_to_row(e) if isinstance(e, Exception) else e._asdict()
+        error_to_row(e) if isinstance(e, Exception) else dict(volume=e.volume, **e._asdict())
         for e in chain(taplog.entries(), orgmode.entries())
     )
 

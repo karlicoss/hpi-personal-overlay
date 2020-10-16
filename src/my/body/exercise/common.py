@@ -7,3 +7,14 @@ class Exercise(NamedTuple):
     kind: str
     reps: Optional[float]
     note: str
+
+    @property
+    def volume(self) -> Optional[float]:
+        reps = self.reps
+        if reps is None:
+            return None
+        from . import specs
+        mult = specs.vmap(self.kind)
+        if mult is None:
+            return None
+        return mult * reps
