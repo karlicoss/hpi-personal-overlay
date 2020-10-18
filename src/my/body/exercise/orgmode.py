@@ -8,6 +8,7 @@ from more_itertools import ilen
 from ...core import Res, LazyLogger
 from ...core.cachew import cache_dir
 from ...core.common import mcachew
+from ...time.tz import main as TZ
 from ...error import attach_dt, sort_res_by
 from ... import orgmode as O
 from . import parser
@@ -26,7 +27,7 @@ def asdt(x) -> Optional[datetime]:
     if x is None:
         return None
     if isinstance(x, datetime):
-        return x
+        return TZ.localize(x)
     else:
         return None
 
@@ -77,6 +78,7 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
 
     def aux(heading: str) -> Iterable[Res[Exercise]]:
         dt, heading = parser.extract_dt(heading)
+        dt = asdt(dt) # meh
         ew, heading = parser.extract_extra(heading)
         dt = dt or pdt
         if dt is None:

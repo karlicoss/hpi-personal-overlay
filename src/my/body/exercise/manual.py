@@ -12,8 +12,9 @@ from . import taplog, orgmode
 
 @cdf
 def dataframe() -> DataFrameT:
+    from datetime import timezone
     pre_df = (
-        error_to_row(e) if isinstance(e, Exception) else dict(volume=e.volume, **e._asdict())
+        error_to_row(e, tz=timezone.utc) if isinstance(e, Exception) else dict(volume=e.volume, **e._asdict())
         for e in chain(taplog.entries(), orgmode.entries())
     )
 
