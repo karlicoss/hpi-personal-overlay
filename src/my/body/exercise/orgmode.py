@@ -31,6 +31,20 @@ def asdt(x) -> Optional[datetime]:
         return None
 
 
+# helper to attach error context
+def parse_error(e: Exception, org: Org, *, dt: Optional[datetime]=None) -> Exception:
+    if dt is None:
+        dt = asdt(org.created)
+    org_file = getattr(org, '_org_file', None)
+    # todo would be nice to exctract actual raw data here...
+    (h, d) = org._preheading
+    raw_heading = (d or '') + ' ' + h
+    # todo body?
+    ex = RuntimeError(f'While parsing {org_file}:{raw_heading}')
+    ex.__cause__ = e
+    return attach_dt(ex, dt=dt)
+
+
 def _get_outlines(f: Path) -> Iterable[Res[Org]]:
     def extract(cur: Org) -> Iterable[Res[Org]]:
         has_org_tag = _TAG in cur.tags
@@ -42,9 +56,9 @@ def _get_outlines(f: Path) -> Iterable[Res[Org]]:
                 yield cur
                 return
             else:
-                yield attach_dt(
-                    RuntimeError(f'expected single match, got {kinds}: {cur}'),
-                    dt=asdt(cur.created),
+                yield parse_error(
+                    RuntimeError(f'expected single match, got {kinds}'),
+                    org=cur,
                 )
 
         for c in cur.children:
@@ -66,12 +80,12 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
         heading     = parser.extract_extra(heading)
         dt = dt or pdt
         if dt is None:
-            yield RuntimeError(heading) # todo attach context?
+            yield parse_error(RuntimeError('No datetime'), org=o)
             return
         try:
             sets, reps = parser.extract_sets_reps(heading, kind=kind)
         except Exception as e:
-            yield attach_dt(e, dt=dt)
+            yield parse_error(e, org=o, dt=dt)
             return
         for _ in range(sets):
             yield Exercise(
@@ -81,7 +95,7 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
                 note=heading, # todo attach body?
             )
 
-    lines = o.content_recursive.splitlines()
+    lines = [l for l in o.content_recursive.splitlines() if len(l.strip()) > 0]
     # try to process as list of sets (date + rep)
     body_res = list(chain.from_iterable(aux(l) for l in lines))
     body_ok = ilen(x for x in body_res if isinstance(x, Exercise))
@@ -90,16 +104,16 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
     head_res = list(aux(heading))
     head_ok = ilen(x for x in head_res if isinstance(x, Exercise))
 
-    if body_ok < 2: # kinda arbitrary, but I guess unlikely
+    if body_ok < 2: # kinda arbitrary, but I guess if there are no numbers in the body, it's unlinkely
         yield from head_res
         return
     if head_ok == 0:
-        # ok, everything was logged in body
-        yield from body_res
+        # ok, everything must have been logged in the body?
+        yield from (r for r in body_res if not isinstance(r, Exception))
         return
-    # otherwise something's not quite right..
-    yield from head_res
-    yield attach_dt(RuntimeError(f'Confusing parsing: {head_res}, {body_res}'), dt=pdt)
+    # otherwise something's not quite right.. just emit the errors
+    yield from (r for r in head_res + body_res if isinstance(r, Exception))
+    yield parse_error(RuntimeError(f'Confusing parsing:\n{head_res}\n{body_res}'), org=o)
 
 
 @mcachew(
@@ -108,17 +122,15 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
 )
 def _from_file(f: Path) -> Iterable[Res[Exercise]]:
     for o in _get_outlines(f):
+        setattr(o, '_org_file', f) # todo would be nice to add it to orparse?
         if isinstance(o, Exception):
             yield o
         else:
-            dt = asdt(o.created)
             try:
                 yield from org_to_exercise(o)
             except Exception as e:
-                err = RuntimeError(f'while extracting from: {o}')
-                err.__cause__ = e
-                logger.exception(err)
-                yield attach_dt(err, dt=dt)
+                logger.exception(e)
+                yield parse_error(RuntimeError('Unhandled error'), org=o)
 
 
 def _raw() -> Iterable[Res[Exercise]]:
@@ -165,8 +177,8 @@ this should be handled by workout processor.. need to test?
         assert x.reps == 90
 
     o = Org.from_string(s).children[1]
-    yy = list(org_to_exercise(o))[1:]
-    assert len(yy) == 4 # first item is a comment
+    yy = list(org_to_exercise(o))
+    assert len(yy) == 4
     for y in yy:
         assert not isinstance(y, Exception)
         assert y.dt is not None
