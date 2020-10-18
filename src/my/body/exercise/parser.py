@@ -81,16 +81,32 @@ def extract_dt(x: str) -> Tuple[Optional[datetime], str]:
     return (dt, x)
 
 
-def extract_extra(x: str) -> str:
+def extract_extra(x: str) -> Tuple[Optional[float], str]:
     repls = [
         (r'(\d+)\s*kg vest'                                 , ''),
-        # TODO don't remember if 4kg was 2x2 kg? .. yeah, I think so
+        # todo don't remember if 4kg was 2x2 kg? .. yeah, I think so
         (r'(2x5|4)\s*kg(?: (?:ankle|wrist|elbow))? weights?', ''),
         (r'tabata \d+/\d+'                                  , ''),
     ]
+    ews = []
     for f, t in repls:
-        x = re.sub(f, t, x)
-    return x
+        m = re.search(f, x)
+        if m is None:
+            continue
+        b, e = m.span()
+        x = x[:b] + x[e:]
+
+        if len(m.groups()) == 0:
+            continue
+
+        v = m.group(1)
+        v = '10' if v == '2x5' else v # ugh
+        ews.append(float(v))
+
+
+        m = re.search(f, x)
+        assert m is None, m
+    return (None if len(ews) == 0 else sum(ews), x)
 
 
 # todo parameterize
@@ -103,12 +119,16 @@ def test_extract_sets_reps() -> None:
         assert r == e
 
 def test_extract_extra() -> None:
-    assert extract_extra(
+    ew, rest = extract_extra(
         '60 squats + 2x5kg elbow weights + 10kg vest'
-    ).strip() == '60 squats +  +'
-    assert extract_extra(
+    )
+    assert ew == 20.0
+    assert rest.strip() == '60 squats +  +'
+    ew, rest = extract_extra(
         '3x12 dips slow tabata 60/240 interleaved'
-    ).strip() == '3x12 dips slow  interleaved'
+    )
+    assert ew == None
+    assert rest.strip() == '3x12 dips slow  interleaved'
 
 
 def test_extract_dt() -> None:

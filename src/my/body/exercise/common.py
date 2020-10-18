@@ -8,6 +8,10 @@ class Exercise(NamedTuple):
     reps: Optional[float]
     note: str
 
+    # todo hmm. hacky, not sure about it...
+    extra_weight: Optional[float] = None
+
+    # todo move to a separate file? volume_model?
     @property
     def volume(self) -> Optional[float]:
         reps = self.reps
@@ -17,4 +21,11 @@ class Exercise(NamedTuple):
         mult = specs.vmap(self.kind)
         if mult is None:
             return None
-        return mult * reps
+        ew = self.extra_weight or 0.0
+        # todo kind of mad
+        m2 = (WEIGHT + ew) / WEIGHT
+        return mult * m2 * reps
+
+
+# TODO weight should be taken from the weight provider?
+WEIGHT = 63.0

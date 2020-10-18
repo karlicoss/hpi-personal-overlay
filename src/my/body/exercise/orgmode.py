@@ -77,7 +77,7 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
 
     def aux(heading: str) -> Iterable[Res[Exercise]]:
         dt, heading = parser.extract_dt(heading)
-        heading     = parser.extract_extra(heading)
+        ew, heading = parser.extract_extra(heading)
         dt = dt or pdt
         if dt is None:
             yield parse_error(RuntimeError('No datetime'), org=o)
@@ -93,6 +93,7 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
                 kind=kind.kind,
                 reps=reps,
                 note=heading, # todo attach body?
+                extra_weight=ew,
             )
 
     lines = [l for l in o.content_recursive.splitlines() if len(l.strip()) > 0]
