@@ -24,6 +24,8 @@ knee_raise      = S('knee raise')
 calf_raise      = S('calf raise') # TODO is this step up???
 step_up         = S('step-up')
 
+squat_hold      = S('squat hold')
+
 ignore    = S('ignore' , has_reps=False)
 sore      = S('sore'   , has_reps=False)
 
@@ -67,12 +69,13 @@ MATCHERS: Dict[str, Optional[SpecIsh]] = {
     'elliptical'    : cross_trainer      ,
     'spinning'      : spinning           ,
 
+    'squat holds?'  : squat_hold         ,
+
     'sore'            : sore,
     'soredness'       : sore,
 
     # handle these later
     # todo warnings if there are too many of these?
-    'static semi squat': None,
     'leg raises?'      : None,
     'chest resistance' : None,
     'abs? roll(s?|er)' : None,
@@ -106,6 +109,7 @@ one_rep[knee_raise  .kind] = 0.5
 one_rep[calf_raise  .kind] = 0.2
 one_rep[step_up     .kind] = 1.0
 one_rep[hollow_leg_hold.kind] = 15.0 / 120 # 120 secs is pretty hard, comparable with say 15 pull ups?
+one_rep[squat_hold  .kind] = 16.0 / 180
 # TODO ok, calf raises and step ups are different. wtf it was???
 
 from functools import lru_cache

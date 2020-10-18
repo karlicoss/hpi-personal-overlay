@@ -87,6 +87,7 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
         except Exception as e:
             yield parse_error(e, org=o, dt=dt)
             return
+        # TODO hmm. if exercise doesn't have reps, then it won't be emitted at all (sets would be 0)
         for _ in range(sets):
             yield Exercise(
                 dt=dt,
