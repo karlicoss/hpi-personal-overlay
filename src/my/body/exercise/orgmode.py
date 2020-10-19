@@ -97,6 +97,7 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
                 reps=reps,
                 note=heading, # todo attach body?
                 extra_weight=ew,
+                src='orgmode',
             )
 
     lines = [l for l in o.content_recursive.splitlines() if len(l.strip()) > 0]

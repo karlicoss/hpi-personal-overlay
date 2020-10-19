@@ -83,9 +83,9 @@ def extract_dt(x: str) -> Tuple[Optional[datetime], str]:
 
 def extract_extra(x: str) -> Tuple[Optional[float], str]:
     repls = [
-        (r'(\d+)\s*kg vest'                                 , ''),
-        # todo don't remember if 4kg was 2x2 kg? .. yeah, I think so
         (r'(2x5|4)\s*kg(?: (?:ankle|wrist|elbow))? weights?', ''),
+        (r'(\d+)\s*kg( vest)?'                              , ''),
+        # todo don't remember if 4kg was 2x2 kg? .. yeah, I think so
         (r'tabata \d+/\d+'                                  , ''),
     ]
     ews = []

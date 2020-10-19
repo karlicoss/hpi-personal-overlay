@@ -11,6 +11,9 @@ class Exercise(NamedTuple):
     # todo hmm. hacky, not sure about it...
     extra_weight: Optional[float] = None
 
+    # todo not sure, would be nice to somehow make it automatic?
+    src: str = ''
+
     # todo move to a separate file? volume_model?
     @property
     def volume(self) -> Optional[float]:

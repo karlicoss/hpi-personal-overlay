@@ -37,6 +37,12 @@ def _with_overrides() -> Iterable[Res[T.Entry]]:
         if o is not None:
             e.row['note'] = o
             patched += 1
+
+        # I've messed up calculating the vest weight at some point
+        e.row['note'] = e.row['note'] \
+          .replace('15kg' , '10kg' )  \
+          .replace('15 kg', '10 kg')
+
         yield e
     if patched == 0:
         yield RuntimeError('no overrides were matched')
@@ -48,20 +54,26 @@ def entries() -> Iterable[Res[Exercise]]:
         if isinstance(e, Exception):
             yield e
             continue
-        kinds = parser.kinds(e.note)
+        note = e.note
+        kinds = parser.kinds(note)
         if len(kinds) != 1:
             yield attach_dt(
-                RuntimeError(f'expected single match, got {kinds}: | {e.id:6} | {e.note} |'),
+                RuntimeError(f'expected single match, got {kinds}: | {e.id:6} | {note} |'),
                 dt=e.timestamp,
             )
-        else:
-            [k] = kinds
-            yield Exercise(
-                dt=e.timestamp,
-                kind=k.kind,
-                reps=e.number, # FIXME sets/tabata
-                note=e.note,
-            )
+            continue
+        [k] = kinds
+
+        ew, note = parser.extract_extra(note)
+
+        yield Exercise(
+            dt=e.timestamp,
+            kind=k.kind,
+            reps=e.number, # FIXME sets/tabata
+            note=e.note,
+            extra_weight=ew,
+            src='taplog',
+        )
 
 
 from ...core import stat, Stats
