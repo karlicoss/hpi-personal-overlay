@@ -2,6 +2,7 @@ from typing import Dict, Iterable
 
 from ...core import Res
 from ...core.common import mcachew
+from ...core.orgmode import collect, Table
 from ...error import attach_dt
 from ... import taplog as T
 from . import parser
@@ -16,13 +17,14 @@ def overrides() -> Dict[str, str]:
     '''
     # to dump the initial table:
     # sqlite3 taplog.db 'SELECT printf("| %6d | %s |", _id, lower(note)) FROM log WHERE cat1="ex" ORDER BY lower(note)'
-    # todo use orgmode provider directly??
-    from porg import Org
-    # todo should use all org notes and just query from them?. it's quite slow...
-    wlog = Org.from_file(user_config.workout_log)
-    table = wlog.xpath_all('//org[heading="Taplog overrides"]//table')[0]
+    import orgparse
+    wlog = orgparse.load(user_config.workout_log)
+    [table] = collect(
+        wlog,
+        lambda n: [] if n.heading != 'Taplog overrides' else [x for x in n.body_rich if isinstance(x, Table)]
+    )
     res = {}
-    for row in table.lines:
+    for row in table.as_dicts:
         id   = row['id']
         note = row['note']
         res[id] = note

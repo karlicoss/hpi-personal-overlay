@@ -2,15 +2,12 @@
 Manually tracked sleep data: sleepiness, dreams, whether I woke up on time, grogginess during sleep, etc.
 '''
 from datetime import datetime
-from functools import lru_cache
 import re
 from typing import NamedTuple, Iterator
 
-from porg import Org
-
 from ...core import LazyLogger
 from ...core.error import Res, set_error_datetime, extract_error_datetime
-from ...core.orgmode import parse_org_datetime
+from ...core.orgmode import parse_org_datetime, one_table
 from ...time.tz import main as TZ
 
 import my.config
@@ -28,12 +25,6 @@ class Entry(NamedTuple):
 
 
 Result = Res[Entry]
-
-
-@lru_cache()
-def _sleep_org() -> Org:
-    # todo use porgall to find it?
-    return Org.from_file(user_config.sleep_log)
 
 
 def isint(s: str):
@@ -84,10 +75,11 @@ def iter_sleep_table() -> Iterator[Result]:
             rmental -= 0.5 # meh
         return (rdreams, rmental, wakeup)
 
-    o = _sleep_org()
-    table = o.xpath('//table')
-    # TODO use mappers, similar to cross_trainder df?
-    for row in table.lines: # TODO rename to rows?
+    import orgparse
+    o = orgparse.load(user_config.sleep_log)
+    table = one_table(o)
+    # TODO use TypedTable, similar to cross_trainder df?
+    for row in table.as_dicts:
         ex = RuntimeError(f'While parsing {row}')
         # first try to determine the timestamp (for better exception message)
         try:

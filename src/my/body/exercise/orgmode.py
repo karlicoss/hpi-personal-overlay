@@ -15,8 +15,8 @@ from . import parser
 from .common import Exercise
 # todo might need to merge common and parser?
 
-
-from porg import Org
+import orgparse
+from orgparse import OrgNode
 
 logger = LazyLogger(__name__)
 
@@ -33,21 +33,17 @@ def asdt(x) -> Optional[datetime]:
 
 
 # helper to attach error context
-def parse_error(e: Exception, org: Org, *, dt: Optional[datetime]=None) -> Exception:
+def parse_error(e: Exception, org: OrgNode, *, dt: Optional[datetime]=None) -> Exception:
     if dt is None:
-        dt = asdt(org.created)
-    org_file = getattr(org, '_org_file', None)
-    # todo would be nice to exctract actual raw data here...
-    (h, d) = org._preheading
-    raw_heading = (d or '') + ' ' + h
-    # todo body?
-    ex = RuntimeError(f'While parsing {org_file}:{raw_heading}')
+        dt, _ = O._created(org)
+        dt = asdt(dt)
+    ex = RuntimeError(f'While parsing {org.env.filename}:{org.linenumber} {org.heading}')
     ex.__cause__ = e
     return attach_dt(ex, dt=dt)
 
 
-def _get_outlines(f: Path) -> Iterable[Res[Org]]:
-    def extract(cur: Org) -> Iterable[Res[Org]]:
+def _get_outlines(f: Path) -> Iterable[Res[OrgNode]]:
+    def extract(cur: OrgNode) -> Iterable[Res[OrgNode]]:
         has_org_tag = _TAG in cur.tags
         if has_org_tag:
             heading = cur.heading
@@ -65,16 +61,17 @@ def _get_outlines(f: Path) -> Iterable[Res[Org]]:
         for c in cur.children:
             yield from extract(c)
 
-    yield from extract(Org.from_file(f))
+    yield from extract(orgparse.load(f))
 
 
 # TODO move over tests from private workout provider
-def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
+def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
     heading = o.heading
     [kind] = parser.kinds(heading) # todo kinda annoying to do it twice..
 
     # FIXME: need shared attributes?
-    pdt = asdt(o.created)
+    cdt, _, = O._created(o)
+    pdt = asdt(cdt)
 
     def aux(heading: str) -> Iterable[Res[Exercise]]:
         dt, heading = parser.extract_dt(heading)
@@ -100,7 +97,9 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
                 src='orgmode',
             )
 
-    lines = [l for l in o.content_recursive.splitlines() if len(l.strip()) > 0]
+    cs = o.body + '\n'.join(x.heading + '\n' + x.body for x in o[1:]) # all descendants
+    lines = [l.strip() for l in cs.splitlines() if len(l.strip()) > 0]
+
     # try to process as list of sets (date + rep)
     body_res = list(chain.from_iterable(aux(l) for l in lines))
     body_ok = ilen(x for x in body_res if isinstance(x, Exercise))
@@ -127,7 +126,6 @@ def org_to_exercise(o: Org) -> Iterable[Res[Exercise]]:
 )
 def _from_file(f: Path) -> Iterable[Res[Exercise]]:
     for o in _get_outlines(f):
-        setattr(o, '_org_file', f) # todo would be nice to add it to orparse?
         if isinstance(o, Exception):
             yield o
         else:
@@ -173,15 +171,14 @@ this should be handled by workout processor.. need to test?
 ** 90 secs (gave up)
 ** 120 secs
 '''
-    from porg import Org
-    o = Org.from_string(s).children[0]
+    o = orgparse.loads(s).children[0]
     xx = list(org_to_exercise(o))
     for x in xx:
         assert not isinstance(x, Exception)
         assert x.dt is not None
         assert x.reps == 90
 
-    o = Org.from_string(s).children[1]
+    o = orgparse.loads(s).children[1]
     yy = list(org_to_exercise(o))
     assert len(yy) == 4
     for y in yy:
@@ -190,7 +187,7 @@ this should be handled by workout processor.. need to test?
         reps = y.reps
         assert reps is not None
         assert reps > 15 # todo more specific tests
-    o = Org.from_string(s).children[2]
+    o = orgparse.loads(s).children[2]
     zz = list(org_to_exercise(o))
     [a, b, c] = zz
     assert isinstance(b, Exercise)
