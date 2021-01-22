@@ -12,6 +12,7 @@ class Spec(NamedTuple):
 S = Spec
 push_up         = S('push-up')
 push_up_diamond = S('diamond push-up')
+push_up_wide    = S('wide push-up')
 squat           = S('squat'  )
 squat_pistol    = S('pistol squat')
 dip             = S('dip'    )
@@ -45,6 +46,9 @@ MATCHERS: Dict[str, Optional[SpecIsh]] = {
     'push ups?'     : push_up            ,
     'diamond'       : push_up_diamond    ,
     'oapu'          : 'one armed push-up',
+    # ' pu ' # TODO ugh. they need to be ordered??
+    'pu wide'       : push_up_wide       ,
+    'push ups? wide': push_up_wide       ,
 
     'dips'          : dip                ,
     'step ups'      : step_up            ,
@@ -90,6 +94,7 @@ MATCHERS: Dict[str, Optional[SpecIsh]] = {
 max_reps: Dict[Spec, float] = {
     push_up: 30.0,
     push_up_diamond: 30.0,
+    push_up_wide: 40.0,
     pull_up  : 15.0, # FIXME 13
     pull_up_l: 15.0,
     chin_up: 15.0, # FIXME 13

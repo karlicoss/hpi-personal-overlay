@@ -170,15 +170,18 @@ this should be handled by workout processor.. need to test?
 ** 120 secs
 ** 90 secs (gave up)
 ** 120 secs
+* [2018-10-04 Thu 07:46] 20 pu diamond :wlog:
+* [2018-10-04 Thu 07:50] 30.5F pu wide
 '''
-    o = orgparse.loads(s).children[0]
+    os = orgparse.loads(s)
+    o = os.children[0]
     xx = list(org_to_exercise(o))
     for x in xx:
         assert not isinstance(x, Exception)
         assert x.dt is not None
         assert x.reps == 90
 
-    o = orgparse.loads(s).children[1]
+    o = os.children[1]
     yy = list(org_to_exercise(o))
     assert len(yy) == 4
     for y in yy:
@@ -187,10 +190,22 @@ this should be handled by workout processor.. need to test?
         reps = y.reps
         assert reps is not None
         assert reps > 15 # todo more specific tests
-    o = orgparse.loads(s).children[2]
+    o = os.children[2]
     zz = list(org_to_exercise(o))
     [a, b, c] = zz
     assert isinstance(b, Exercise)
     assert isinstance(c, Exercise)
     assert b.reps == 90
     assert c.reps == 120
+
+    o = os.children[3]
+    zz = list(org_to_exercise(o))
+    [x] = zz
+    assert isinstance(x, Exercise)
+    assert x.reps == 20
+
+    o = os.children[4]
+    zz = list(org_to_exercise(o))
+    [x] = zz
+    assert isinstance(x, Exercise)
+    assert x.reps == 30.5
