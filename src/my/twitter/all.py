@@ -1,20 +1,23 @@
 from typing import Iterator
-from ..core import Res
-from .common import merge_tweets, Tweet
+
+from my.core import Res
+from my.twitter import talon
+from my.twitter.common import merge_tweets, Tweet
 
 from my.orig.my.twitter import all as ORIG
-from . import talon
 
 
+# talon is higher quality? so goes first
 def tweets() -> Iterator[Res[Tweet]]:
+    # NOTE: merge_tweets is basically called twice here.. but maybe it's fine
     yield from merge_tweets(
-        ORIG.tweets(),
         talon  .tweets(),
+        ORIG.tweets(),
     )
 
 
 def likes() -> Iterator[Res[Tweet]]:
     yield from merge_tweets(
-        ORIG.likes(),
         talon  .likes(),
+        ORIG.likes(),
     )
