@@ -127,7 +127,7 @@ def test_extract_extra() -> None:
     ew, rest = extract_extra(
         '3x12 dips slow tabata 60/240 interleaved'
     )
-    assert ew == None
+    assert ew is None, ew
     assert rest.strip() == '3x12 dips slow  interleaved'
 
 

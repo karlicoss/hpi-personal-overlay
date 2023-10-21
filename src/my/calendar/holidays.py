@@ -3,7 +3,7 @@ from   my.orig.my.calendar.holidays import *
 
 
 is_holiday_orig = M.is_holiday
-def is_holiday(d: DateIsh) -> bool:
+def is_holiday(d: M.DateIsh) -> bool:
     # if it's a public holiday, definitely a holiday?
     if is_holiday_orig(d):
         return True
@@ -17,13 +17,13 @@ M.is_holiday = is_holiday
 
 ###
 
-from datetime import datetime, date, datetime
+from datetime import datetime, date, datetime, timedelta
 from functools import lru_cache
 from typing import Iterable, Tuple, List
 import re
 
-def is_day_off_work(d: DateIsh) -> bool:
-    day = as_date(d)
+def is_day_off_work(d: M.DateIsh) -> bool:
+    day = M.as_date(d)
     return day in _days_off_work()
 
 
