@@ -1,9 +1,15 @@
-import my.orig.my.calendar.holidays as M
-from   my.orig.my.calendar.holidays import *
+from my.core.experimental import import_original_module
+
+_ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
+
+from datetime import datetime, date
+from typing import Union
+
+DateIsh = Union[datetime, date, str]
 
 
-is_holiday_orig = M.is_holiday
-def is_holiday(d: M.DateIsh) -> bool:
+is_holiday_orig = _ORIG.is_holiday
+def is_holiday(d: DateIsh) -> bool:
     # if it's a public holiday, definitely a holiday?
     if is_holiday_orig(d):
         return True
@@ -11,7 +17,7 @@ def is_holiday(d: M.DateIsh) -> bool:
     if is_day_off_work(d):
         return True
     return False
-M.is_holiday = is_holiday
+_ORIG.is_holiday = is_holiday
 # NOTE: without overriding the original, the functions from M itself are capturing the old function?
 # need to test it...
 
@@ -22,8 +28,8 @@ from functools import lru_cache
 from typing import Iterable, Tuple, List
 import re
 
-def is_day_off_work(d: M.DateIsh) -> bool:
-    day = M.as_date(d)
+def is_day_off_work(d: DateIsh) -> bool:
+    day = _ORIG.as_date(d)
     return day in _days_off_work()
 
 
@@ -58,7 +64,7 @@ def _iter_days_off_work() -> Iterable[date]:
         dd = d
         while span > 0:
             # only count it if it wasnt' a public holiday/weekend already
-            if M._calendar().is_working_day(dd):
+            if _ORIG._calendar().is_working_day(dd):
                 yield dd
                 span -= 1
             dd += timedelta(days=1)

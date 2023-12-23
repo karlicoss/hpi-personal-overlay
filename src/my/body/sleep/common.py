@@ -1,13 +1,14 @@
 '''
 Overrides original common.py to attach manual sleep data
 '''
-import my.orig.my.body.sleep.common as O
-from   my.orig.my.body.sleep.common import *
+from my.core.experimental import import_original_module
+
+_ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
 
 from . import manual
 
 
-orig = O.Combine.dataframe
+orig = _ORIG.Combine.dataframe
 def dataframe_override(self, *args, **kwargs):
     # call the original method first
     odf = orig(self, *args, **kwargs)
@@ -64,9 +65,12 @@ def dataframe_override(self, *args, **kwargs):
     rdf = rdf.drop(columns=['error_manual'])
     # TODO need to test this stuff..
     return rdf
-O.Combine.dataframe = dataframe_override
+_ORIG.Combine.dataframe = dataframe_override
 
 ####
 
 from datetime import timedelta
 _DELTA = timedelta(hours=20)
+
+
+# TODO for testing, check for presence of 'mental' or 'dreams' cols??

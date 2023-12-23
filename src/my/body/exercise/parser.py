@@ -69,7 +69,7 @@ def extract_sets_reps(x: str, kind: Optional[Spec]=None) -> Tuple[int, float]:
     return (sets, reps)
 
 
-from ...orig.my.core.orgmode import parse_org_datetime
+from my.core.orgmode import parse_org_datetime
 def extract_dt(x: str) -> Tuple[Optional[datetime], str]:
     ress = re.findall(r'\[.*\]', x)
     if len(ress) != 1:
