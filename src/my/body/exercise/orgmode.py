@@ -1,29 +1,28 @@
+from collections.abc import Iterable
 from datetime import datetime
 from itertools import chain
 from pathlib import Path
-from typing import Dict, Iterable, Optional
 
+# todo might need to merge common and parser?
+import orgparse
 from more_itertools import ilen
+from orgparse import OrgNode
 
-from ...core import Res, LazyLogger
-from ...core.cachew import cache_dir
-from my.core.cachew import mcachew
-from ...time.tz import main as TZ
-from ...error import attach_dt, sort_res_by
-from ... import orgmode as O
+import my.orgmode as O
+from my.core import LazyLogger, Res, Stats, stat
+from my.core.cachew import cache_dir, mcachew
+from my.error import attach_dt
+from my.time.tz import main as TZ
+
 from . import parser
 from .common import Exercise
-# todo might need to merge common and parser?
-
-import orgparse
-from orgparse import OrgNode
 
 logger = LazyLogger(__name__)
 
 _TAG = 'wlog'
 
 
-def asdt(x) -> Optional[datetime]:
+def asdt(x) -> datetime | None:
     if x is None:
         return None
     if isinstance(x, datetime):
@@ -33,7 +32,7 @@ def asdt(x) -> Optional[datetime]:
 
 
 # helper to attach error context
-def parse_error(e: Exception, org: OrgNode, *, dt: Optional[datetime]=None) -> Exception:
+def parse_error(e: Exception, org: OrgNode, *, dt: datetime | None=None) -> Exception:
     if dt is None:
         dt, _ = O._created(org)
         dt = asdt(dt)
@@ -142,11 +141,9 @@ def _raw() -> Iterable[Res[Exercise]]:
 
 
 def entries() -> Iterable[Res[Exercise]]:
-    for note in _raw():
-        yield note
+    yield from _raw()
 
 
-from ...core import stat, Stats
 def stats() -> Stats:
     return stat(entries)
 

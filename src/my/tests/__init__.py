@@ -5,4 +5,4 @@
 # this particularly sucks here, because otherwise would be nice if people could also just put tests for their my. packages into their tests/ directory
 # maybe some sort of hack could be used later similar to handle_legacy_import?
 
-from my.core import __NOT_HPI_MODULE__
+from my.core import __NOT_HPI_MODULE__ as __NOT_HPI_MODULE__  # noqa: PLC0414

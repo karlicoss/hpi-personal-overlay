@@ -1,19 +1,16 @@
 '''
 Sleepiness during the day, manually logged in org-mode
 '''
-from datetime import datetime
-from functools import lru_cache
 import re
-from typing import NamedTuple, Iterator
-
-from my.core import LazyLogger
-from my.core.error import Res, set_error_datetime, extract_error_datetime
-from my.core.orgmode import parse_org_datetime
-from my.time.tz import main as TZ
-from my import orgmode
-
 
 import my.config
+from my import orgmode
+from my.core import LazyLogger, Stats, stat
+from my.core.error import extract_error_datetime, set_error_datetime
+from my.core.pandas import DataFrameT
+from my.core.pandas import check_dataframe as cdf
+from my.time.tz import main as TZ
+
 user_config = my.config.body.sleep  # type: ignore[attr-defined]
 
 log = LazyLogger(__name__)
@@ -85,14 +82,12 @@ def pre_dataframe():
             yield e
 
 
-from my.core.pandas import DataFrameT, check_dataframe as cdf
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd # type: ignore[import-untyped]
+    import pandas as pd  # type: ignore[import-untyped]
     return pd.DataFrame(pre_dataframe())
 
 
-from my.core import stat, Stats
 def stats() -> Stats:
     return stat(dataframe)
 

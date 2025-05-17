@@ -1,17 +1,15 @@
 '''
 Some helpers for manual exercise parsing
 '''
+import re
 from datetime import datetime
 from functools import lru_cache
-import re
-from typing import Dict, Optional, List, Tuple
 
-
-from .specs import Spec, MATCHERS, ignore
+from .specs import MATCHERS, Spec, ignore
 
 
 @lru_cache(1)
-def _matchers() -> Dict[str, Spec]:
+def _matchers() -> dict[str, Spec]:
     res = {}
     for k, v in MATCHERS.items():
         vv: Spec
@@ -25,7 +23,7 @@ def _matchers() -> Dict[str, Spec]:
     return res
 
 
-def kinds(x: str) -> List[Spec]:
+def kinds(x: str) -> list[Spec]:
     M = _matchers()
     x = x.lower()
     keys = [
@@ -45,7 +43,7 @@ def kinds(x: str) -> List[Spec]:
     return [M[k] for k in keys]
 
 
-def extract_sets_reps(x: str, kind: Optional[Spec]=None) -> Tuple[int, float]:
+def extract_sets_reps(x: str, kind: Spec | None=None) -> tuple[int, float]:
     if kind is not None and not kind.has_reps:
         # todo not sure... might want to return None here?
         return (0, 0.0)
@@ -70,7 +68,9 @@ def extract_sets_reps(x: str, kind: Optional[Spec]=None) -> Tuple[int, float]:
 
 
 from my.core.orgmode import parse_org_datetime
-def extract_dt(x: str) -> Tuple[Optional[datetime], str]:
+
+
+def extract_dt(x: str) -> tuple[datetime | None, str]:
     ress = re.findall(r'\[.*\]', x)
     if len(ress) != 1:
         # todo throw if > 0?
@@ -81,7 +81,7 @@ def extract_dt(x: str) -> Tuple[Optional[datetime], str]:
     return (dt, x)
 
 
-def extract_extra(x: str) -> Tuple[Optional[float], str]:
+def extract_extra(x: str) -> tuple[float | None, str]:
     repls = [
         (r'(2x5|4)\s*kg(?: (?:ankle|wrist|elbow))? weights?', ''),
         (r'(\d+)\s*kg( vest)?'                              , ''),
@@ -90,6 +90,7 @@ def extract_extra(x: str) -> Tuple[Optional[float], str]:
     ]
     ews = []
     for f, t in repls:
+        assert t == '', (f, t)  #  I think I indended to support non-empty replacements later? not sure
         m = re.search(f, x)
         if m is None:
             continue

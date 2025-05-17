@@ -1,7 +1,7 @@
 '''
 Specs for manual exercise that help with manual parsing
 '''
-from typing import NamedTuple, Dict, Union, Optional
+from typing import NamedTuple
 
 
 class Spec(NamedTuple):
@@ -38,9 +38,9 @@ cross_trainer = S('cross trainer', has_reps=False)
 spinning      = S('spinning'     , has_reps=False)
 
 
-SpecIsh = Union[Spec, str]
+SpecIsh = Spec | str
 # None means ignore
-MATCHERS: Dict[str, Optional[SpecIsh]] = {
+MATCHERS: dict[str, SpecIsh | None] = {
     'ping'          : ping_pong          ,
 
     'push ups?'     : push_up            ,
@@ -91,7 +91,7 @@ MATCHERS: Dict[str, Optional[SpecIsh]] = {
 
 
 # a completely made up model: equate the maxium reps as the 'maximum' effort I can exert 'in general
-max_reps: Dict[Spec, float] = {
+max_reps: dict[Spec, float] = {
     push_up: 30.0,
     push_up_diamond: 30.0,
     push_up_wide: 40.0,
@@ -103,7 +103,7 @@ max_reps: Dict[Spec, float] = {
     # FIXME process historic stuff and make sure they are specified for both legs?
 }
 # then one rep is the inverse (with a multiplier to make numbers nicer)
-one_rep: Dict[str, float] = {
+one_rep: dict[str, float] = {
     k.kind: 15.0 / v
     for k, v in max_reps.items()
 }
@@ -118,8 +118,10 @@ one_rep[squat_hold  .kind] = 16.0 / 180
 # TODO ok, calf raises and step ups are different. wtf it was???
 
 from functools import lru_cache
+
+
 @lru_cache(None)
-def vmap(x: SpecIsh) -> Optional[float]:
+def vmap(x: SpecIsh) -> float | None:
     if isinstance(x, Spec):
         s = x.kind
     else:

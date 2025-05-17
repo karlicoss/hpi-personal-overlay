@@ -1,25 +1,17 @@
 ### elaborate attempt of restoring favorite/unfavorite times
+import re
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from datetime import datetime, timezone
 from functools import lru_cache
 from multiprocessing import Pool
 from pathlib import Path
-import re
 from typing import (
-    Dict,
-    Iterator,
-    Iterable,
-    List,
-    Mapping,
     NamedTuple,
-    Sequence,
     TypeAlias,
 )
 
 from my.core.utils.itertools import make_dict
-from my.core.cachew import mcachew
-
 from my.reddit import rexport as ORIG
-
 
 ##
 logger = ORIG.logger
@@ -67,7 +59,7 @@ def _get_bdate(bfile: Path) -> datetime:
     return bdt
 
 
-def _get_state(bfile: Path) -> Dict[Uid, SaveWithDt]:
+def _get_state(bfile: Path) -> dict[Uid, SaveWithDt]:
     logger.debug('handling %s', bfile)
 
     bdt = _get_bdate(bfile)
@@ -82,7 +74,7 @@ def _get_state(bfile: Path) -> Dict[Uid, SaveWithDt]:
 # it's called early so it ends up as a global variable that we can't monkey patch easily
 # TODO ugh.. it was crashing for some reason??
 # @mcachew(lambda backups: backups)
-def _get_events(backups: Sequence[Path], parallel: bool=True) -> Iterator[Event]:
+def _get_events(backups: Sequence[Path], *, parallel: bool=True) -> Iterator[Event]:
     # todo cachew: let it transform return type? so you don't have to write a wrapper for lists?
 
     prev_saves: Mapping[Uid, SaveWithDt] = {}
@@ -98,7 +90,7 @@ def _get_events(backups: Sequence[Path], parallel: bool=True) -> Iterator[Event]
         states = map(_get_state, backups)
     # TODO mm, need to make that iterative too?
 
-    for i, (bfile, saves) in enumerate(zip(backups, states)):
+    for i, (bfile, saves) in enumerate(zip(backups, states, strict=True)):
         bdt = _get_bdate(bfile)
 
         first = i == 0
@@ -133,10 +125,10 @@ def _get_events(backups: Sequence[Path], parallel: bool=True) -> Iterator[Event]
     # TODO a bit awkward, favorited should compare lower than unfavorited?
 
 @lru_cache(1)
-def events(*args, **kwargs) -> List[Event]:
+def events(*args, **kwargs) -> list[Event]:
     inp = inputs()
     # 2.2s for 300 files without cachew
     # 0.2s for 300 files with cachew
     evit = _get_events(inp, *args, **kwargs)
     # todo mypy is confused here and thinks it's iterable of Path? perhaps something to do with mcachew?
-    return list(sorted(evit, key=lambda e: e.cmp_key))
+    return sorted(evit, key=lambda e: e.cmp_key)
