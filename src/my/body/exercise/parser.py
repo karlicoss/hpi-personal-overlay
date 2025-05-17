@@ -6,6 +6,8 @@ import re
 from datetime import datetime
 from functools import lru_cache
 
+from my.core.orgmode import parse_org_datetime
+
 from .specs import MATCHERS, Spec, ignore
 
 
@@ -65,7 +67,6 @@ def extract_sets_reps(x: str, kind: Spec | None = None) -> tuple[int, float]:
     return (sets, reps)
 
 
-from my.core.orgmode import parse_org_datetime
 
 
 def extract_dt(x: str) -> tuple[datetime | None, str]:

@@ -9,7 +9,7 @@ from more_itertools import ilen
 from orgparse import OrgNode
 
 import my.orgmode as O
-from my.core import LazyLogger, Res, Stats, stat
+from my.core import Res, Stats, make_logger, stat
 from my.core.cachew import cache_dir, mcachew
 from my.core.error import attach_dt
 from my.time.tz import main as TZ
@@ -17,7 +17,7 @@ from my.time.tz import main as TZ
 from . import parser
 from .common import Exercise
 
-logger = LazyLogger(__name__)
+logger = make_logger(__name__)
 
 _TAG = 'wlog'
 
