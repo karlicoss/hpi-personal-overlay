@@ -23,13 +23,14 @@ def testdata() -> Path:
     assert d.exists(), d
     return d
 
+
 # prevent pytest from treating this as test
 testdata.__test__ = False  # type: ignore[attr-defined]
 
 
-
 def test_events() -> None:
     from my.reddit.rexport_misc import events
+
     assert len(list(events())) > 0
 
 
@@ -75,7 +76,6 @@ def prepare():
         class reddit:
             export_dir = data
             please_keep_me = 'whatever'
-
 
     # NOTE ugh. need to .* prefix to account for my.orig.my.reddit... meh
     # TODO maybe not relevant anymore?? ^^

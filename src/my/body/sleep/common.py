@@ -1,6 +1,7 @@
 '''
 Overrides original common.py to attach manual sleep data
 '''
+
 from my.core.experimental import import_original_module
 
 _ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
@@ -8,6 +9,8 @@ _ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
 from . import manual
 
 orig = _ORIG.Combine.dataframe
+
+
 def dataframe_override(self, *args, **kwargs):
     # call the original method first
     odf = orig(self, *args, **kwargs)
@@ -18,8 +21,9 @@ def dataframe_override(self, *args, **kwargs):
     ## and now merge (needs a bit of elaborate logic to handle errors properly)
     # TODO implement a generic method, reuse in cross_trainer??
     import pandas as pd  # type: ignore[import-untyped]
+
     rows = []
-    idxs = [] # type: ignore[var-annotated]
+    idxs = []  # type: ignore[var-annotated]
     for _i, row in mdf.iterrows():
         rd = row.to_dict()
         is_error = not pd.isna(rd['error'])
@@ -59,11 +63,14 @@ def dataframe_override(self, *args, **kwargs):
             return None
         else:
             return '; '.join(l)
+
     # TODO error_manual might not be present? not sure how to make defensive
     rdf['error'] = rdf[['error', 'error_manual']].agg(combine, axis=1)
     rdf = rdf.drop(columns=['error_manual'])
     # TODO need to test this stuff..
     return rdf
+
+
 _ORIG.Combine.dataframe = dataframe_override
 
 ####

@@ -30,6 +30,7 @@ class SaveWithDt(NamedTuple):
     def __getattr__(self, x):
         return getattr(self.save, x)
 
+
 # TODO for future events?
 EventKind = SaveWithDt
 
@@ -49,10 +50,11 @@ class Event(NamedTuple):
 
 Url = str
 
+
 def _get_bdate(bfile: Path) -> datetime:
     RE = re.compile(r'reddit.(\d{14})')
     stem = bfile.stem
-    stem = stem.replace('T', '').replace('Z', '') # adapt for arctee
+    stem = stem.replace('T', '').replace('Z', '')  # adapt for arctee
     match = RE.search(stem)
     assert match is not None
     bdt = datetime.strptime(match.group(1), "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
@@ -70,11 +72,12 @@ def _get_state(bfile: Path) -> dict[Uid, SaveWithDt]:
         key=lambda s: s.save.sid,
     )
 
+
 # TODO hmm. think about it.. if we set default backups=inputs()
 # it's called early so it ends up as a global variable that we can't monkey patch easily
 # TODO ugh.. it was crashing for some reason??
 # @mcachew(lambda backups: backups)
-def _get_events(backups: Sequence[Path], *, parallel: bool=True) -> Iterator[Event]:
+def _get_events(backups: Sequence[Path], *, parallel: bool = True) -> Iterator[Event]:
     # todo cachew: let it transform return type? so you don't have to write a wrapper for lists?
 
     prev_saves: Mapping[Uid, SaveWithDt] = {}
@@ -102,14 +105,14 @@ def _get_events(backups: Sequence[Path], *, parallel: bool=True) -> Iterator[Eve
                 # eh. I guess just take max and it will always be correct?
                 assert not first
                 yield Event(
-                    dt=bdt, # TODO average with ps.save_dt?
+                    dt=bdt,  # TODO average with ps.save_dt?
                     text="unfavorited",
                     kind=ps,
                     eid=f'unf-{ps.sid}',
                     url=ps.url,
                     title=ps.title,
                 )
-            else: # already in saves
+            else:  # already in saves
                 s = saves[key]
                 last_saved = s.backup_dt
                 yield Event(

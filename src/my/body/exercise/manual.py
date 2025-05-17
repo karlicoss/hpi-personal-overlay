@@ -1,6 +1,7 @@
 '''
 Manually logged exercise from various sources (taplog/org-mode/etc)
 '''
+
 from datetime import timezone
 from itertools import chain
 
@@ -18,6 +19,7 @@ def dataframe() -> DataFrameT:
     )
 
     import pandas as pd  # type: ignore[import-untyped]
+
     return pd.DataFrame(pre_df)
 
 

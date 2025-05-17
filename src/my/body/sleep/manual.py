@@ -1,6 +1,7 @@
 '''
 Manually tracked sleep data: sleepiness, dreams, whether I woke up on time, grogginess during sleep, etc.
 '''
+
 import re
 from collections.abc import Iterator
 from datetime import datetime
@@ -36,10 +37,12 @@ def isint(s: str):
     else:
         return True
 
+
 def rpunct(s: str) -> str:
     return re.sub(r'[.,]', ' ', s)
 
 
+# fmt: off
 _xxx = [
     ([]    , None),
     ([0]   , 0.0),
@@ -47,6 +50,7 @@ _xxx = [
     ([2]   , 2.0),
     ([1, 2], 1.5),
 ]
+# fmt: on
 
 _dream_score_map = {frozenset(l): score for l, score in _xxx}
 
@@ -58,11 +62,11 @@ def iter_sleep_table() -> Iterator[Result]:
     def parse_row(row):
         dreamss = row['dreams']
         mentals = row['mental']
-        wakeup  = row['wakeup']
+        wakeup = row['wakeup']
         dreams = set(rpunct(dreamss).split())
         extra = dreams.difference({'0', '1', '2'})
         assert len(extra) == 0, extra
-        rdreams =_dream_score_map.get(frozenset({int(x) for x in dreams}), None)
+        rdreams = _dream_score_map.get(frozenset({int(x) for x in dreams}), None)
         assert rdreams is not None
 
         vals = {'0', '1', '2'}
@@ -73,12 +77,13 @@ def iter_sleep_table() -> Iterator[Result]:
         rmental = float(nums[0])
         extra = toks.difference(vals)
         if rmental == 1.0 and 'sleepy' in extra:
-            rmental -= 0.5 # meh
+            rmental -= 0.5  # meh
         return (rdreams, rmental, wakeup)
 
     user_config = my.config.body.sleep  # type: ignore[attr-defined]
 
     import orgparse  # TODO add to REQUIRES?
+
     o = orgparse.load(user_config.sleep_log)
     table = one_table(o)
     # TODO use TypedTable, similar to cross_trainder df?
@@ -122,13 +127,13 @@ def pre_dataframe():
             # TODO attach traceback to error in dataframe as well?
             edt = extract_error_datetime(e)
             yield {
-                'dt'   : edt,
+                'dt': edt,
                 'error': str(e),
             }
         else:
             # TODO just dump the dict?
             yield {
-                'dt'    : e.dt,
+                'dt': e.dt,
                 'dreams': e.dreams,
                 'mental': e.mental,
             }
@@ -139,6 +144,7 @@ def pre_dataframe():
 @cdf
 def dataframe() -> DataFrameT:
     import pandas as pd  # type: ignore[import-untyped]
+
     return pd.DataFrame(pre_dataframe())
     # TODO make sure date is unique and warn?
     # maybe could be part of cdf?
@@ -146,7 +152,6 @@ def dataframe() -> DataFrameT:
 
 def stats() -> Stats:
     return stat(dataframe)
-
 
 
 # TODO maybe need correlate function for two dt indexed dataframes?
