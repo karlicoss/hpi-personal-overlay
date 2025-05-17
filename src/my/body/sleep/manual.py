@@ -14,8 +14,6 @@ from my.core.pandas import DataFrameT
 from my.core.pandas import check_dataframe as cdf
 from my.time.tz import main as TZ
 
-user_config = my.config.body.sleep  # type: ignore[attr-defined]
-
 log = LazyLogger(__name__)
 
 
@@ -77,6 +75,8 @@ def iter_sleep_table() -> Iterator[Result]:
         if rmental == 1.0 and 'sleepy' in extra:
             rmental -= 0.5 # meh
         return (rdreams, rmental, wakeup)
+
+    user_config = my.config.body.sleep  # type: ignore[attr-defined]
 
     import orgparse  # TODO add to REQUIRES?
     o = orgparse.load(user_config.sleep_log)

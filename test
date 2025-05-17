@@ -1,6 +1,0 @@
-#!/bin/bash
-set -eux
-
-cd "$(dirname "$0")"
-
-PYTHONPATH=src exec pytest --pyargs --import-mode=importlib my.tests "$@"

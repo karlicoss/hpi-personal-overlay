@@ -3,15 +3,12 @@ Sleepiness during the day, manually logged in org-mode
 '''
 import re
 
-import my.config
 from my import orgmode
 from my.core import LazyLogger, Stats, stat
 from my.core.error import extract_error_datetime, set_error_datetime
 from my.core.pandas import DataFrameT
 from my.core.pandas import check_dataframe as cdf
 from my.time.tz import main as TZ
-
-user_config = my.config.body.sleep  # type: ignore[attr-defined]
 
 log = LazyLogger(__name__)
 

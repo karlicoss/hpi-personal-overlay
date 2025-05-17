@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
@@ -6,8 +7,25 @@ import pytest
 import my.reddit.rexport_misc as my_reddit_rexport_misc
 from my.core.cfg import tmp_config
 
-# todo ugh, it's discovered as a test???
-from .common import testdata
+
+# FIXME ugh... copypasted from main hpi...
+# need to think how to discover testdata coming with the main package...
+# perhaps could be a dependency somehow??
+def hpi_repo_root() -> Path:
+    root_dir = Path(__file__).absolute().parent.parent.parent.parent
+    src_dir = root_dir / 'src'
+    assert src_dir.exists(), src_dir
+    return root_dir
+
+
+def testdata() -> Path:
+    d = hpi_repo_root() / 'testdata'
+    assert d.exists(), d
+    return d
+
+# prevent pytest from treating this as test
+testdata.__test__ = False  # type: ignore[attr-defined]
+
 
 
 def test_events() -> None:
