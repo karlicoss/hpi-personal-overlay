@@ -11,7 +11,7 @@ from orgparse import OrgNode
 import my.orgmode as O
 from my.core import LazyLogger, Res, Stats, stat
 from my.core.cachew import cache_dir, mcachew
-from my.error import attach_dt
+from my.core.error import attach_dt
 from my.time.tz import main as TZ
 
 from . import parser
