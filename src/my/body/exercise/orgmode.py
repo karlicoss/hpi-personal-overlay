@@ -7,7 +7,7 @@ from more_itertools import ilen
 
 from ...core import Res, LazyLogger
 from ...core.cachew import cache_dir
-from ...core.common import mcachew
+from my.core.cachew import mcachew
 from ...time.tz import main as TZ
 from ...error import attach_dt, sort_res_by
 from ... import orgmode as O
@@ -122,7 +122,7 @@ def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
 
 @mcachew(
     cache_path=lambda f: cache_dir() / __name__ / O._sanitize(f), force_file=True,
-    depends_on=lambda f: (f, f.stat().st_mtime),
+    depends_on=lambda f: (f, f.stat().st_mtime),  # type: ignore[misc]
 )
 def _from_file(f: Path) -> Iterable[Res[Exercise]]:
     for o in _get_outlines(f):

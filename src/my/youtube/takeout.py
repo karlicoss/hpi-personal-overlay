@@ -26,4 +26,4 @@ def _watched() -> Iterator[Res[Any]]:
         w = replace(w, when=when)
         yield w
 
-_ORIG._watched = _watched
+_ORIG._watched = _watched  # type: ignore[attr-defined]

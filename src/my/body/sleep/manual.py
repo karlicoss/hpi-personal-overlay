@@ -11,7 +11,7 @@ from ...core.orgmode import parse_org_datetime, one_table
 from ...time.tz import main as TZ
 
 import my.config
-user_config = my.config.body.sleep
+user_config = my.config.body.sleep  # type: ignore[attr-defined]
 
 log = LazyLogger(__name__)
 
@@ -47,7 +47,7 @@ _xxx = [
     ([1, 2], 1.5),
 ]
 
-_dream_score_map = {frozenset(l): score for l, score in _xxx} # type: ignore
+_dream_score_map = {frozenset(l): score for l, score in _xxx}
 
 
 def iter_sleep_table() -> Iterator[Result]:
@@ -131,18 +131,18 @@ def pre_dataframe():
             }
 
 
-from ...core.pandas import DataFrameT, check_dataframe as cdf
+from my.core.pandas import DataFrameT, check_dataframe as cdf
 # TODO make sure error column is always preset... maybe also add to cdf?
 # also it needs to be str, so contain None, not NaN?
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd # type: ignore
+    import pandas as pd # type: ignore[import-untyped]
     return pd.DataFrame(pre_dataframe())
     # TODO make sure date is unique and warn?
     # maybe could be part of cdf?
 
 
-from ...core import stat, Stats
+from my.core import stat, Stats
 def stats() -> Stats:
     return stat(dataframe)
 

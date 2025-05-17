@@ -1,9 +1,9 @@
 from typing import Dict, Iterable
 
-from ...core import Res
-from ...core.common import mcachew
-from ...core.orgmode import collect, Table
-from ...error import attach_dt
+from my.core import Res
+from my.core.cachew import mcachew
+from my.core.orgmode import collect, Table
+from my.error import attach_dt
 from ... import taplog as T
 from . import parser
 from .common import Exercise
