@@ -32,7 +32,7 @@ def asdt(x) -> datetime | None:
 
 
 # helper to attach error context
-def parse_error(e: Exception, org: OrgNode, *, dt: datetime | None=None) -> Exception:
+def parse_error(e: Exception, org: OrgNode, *, dt: datetime | None = None) -> Exception:
     if dt is None:
         dt, _ = O._created(org)
         dt = asdt(dt)
@@ -66,15 +66,15 @@ def _get_outlines(f: Path) -> Iterable[Res[OrgNode]]:
 # TODO move over tests from private workout provider
 def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
     heading = o.heading
-    [kind] = parser.kinds(heading) # todo kinda annoying to do it twice..
+    [kind] = parser.kinds(heading)  # todo kinda annoying to do it twice..
 
     # FIXME: need shared attributes?
-    cdt, _, = O._created(o)
+    cdt, _ = O._created(o)
     pdt = asdt(cdt)
 
     def aux(heading: str) -> Iterable[Res[Exercise]]:
         dt, heading = parser.extract_dt(heading)
-        dt = asdt(dt) # meh
+        dt = asdt(dt)  # meh
         ew, heading = parser.extract_extra(heading)
         dt = dt or pdt
         if dt is None:
@@ -91,12 +91,12 @@ def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
                 dt=dt,
                 kind=kind.kind,
                 reps=reps,
-                note=heading, # todo attach body?
+                note=heading,  # todo attach body?
                 extra_weight=ew,
                 src='orgmode',
             )
 
-    cs = o.body + '\n'.join(x.heading + '\n' + x.body for x in o[1:]) # all descendants
+    cs = o.body + '\n'.join(x.heading + '\n' + x.body for x in o[1:])  # all descendants
     lines = [l.strip() for l in cs.splitlines() if len(l.strip()) > 0]
 
     # try to process as list of sets (date + rep)
@@ -107,7 +107,7 @@ def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
     head_res = list(aux(heading))
     head_ok = ilen(x for x in head_res if isinstance(x, Exercise))
 
-    if body_ok < 2: # kinda arbitrary, but I guess if there are no numbers in the body, it's unlinkely
+    if body_ok < 2:  # kinda arbitrary, but I guess if there are no numbers in the body, it's unlinkely
         yield from head_res
         return
     if head_ok == 0:
@@ -120,7 +120,8 @@ def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
 
 
 @mcachew(
-    cache_path=lambda f: cache_dir() / __name__ / O._sanitize(f), force_file=True,
+    cache_path=lambda f: cache_dir() / __name__ / O._sanitize(f),
+    force_file=True,
     depends_on=lambda f: (f, f.stat().st_mtime),  # type: ignore[misc]
 )
 def _from_file(f: Path) -> Iterable[Res[Exercise]]:
@@ -149,6 +150,7 @@ def stats() -> Stats:
 
 
 ### tests
+
 
 def test_org_to_exercise() -> None:
     s = '''
@@ -186,7 +188,7 @@ this should be handled by workout processor.. need to test?
         assert y.dt is not None
         reps = y.reps
         assert reps is not None
-        assert reps > 15 # todo more specific tests
+        assert reps > 15  # todo more specific tests
     o = os.children[2]
     zz = list(org_to_exercise(o))
     [a, b, c] = zz

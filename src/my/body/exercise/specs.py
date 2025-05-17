@@ -1,6 +1,8 @@
 '''
 Specs for manual exercise that help with manual parsing
 '''
+
+from functools import lru_cache
 from typing import NamedTuple
 
 
@@ -10,6 +12,7 @@ class Spec(NamedTuple):
 
 
 S = Spec
+# fmt: off
 push_up         = S('push-up')
 push_up_diamond = S('diamond push-up')
 push_up_wide    = S('wide push-up')
@@ -36,9 +39,12 @@ skipping      = S('skipping'     , has_reps=False)
 running       = S('running'      , has_reps=False)
 cross_trainer = S('cross trainer', has_reps=False)
 spinning      = S('spinning'     , has_reps=False)
+# fmt: on
 
 
 SpecIsh = Spec | str
+
+# fmt: off
 # None means ignore
 MATCHERS: dict[str, SpecIsh | None] = {
     'ping'          : ping_pong          ,
@@ -88,8 +94,10 @@ MATCHERS: dict[str, SpecIsh | None] = {
     'door strap'       : None,
     'plank'            : None,
 }
+# fmt: on
 
 
+# fmt: off
 # a completely made up model: equate the maxium reps as the 'maximum' effort I can exert 'in general
 max_reps: dict[Spec, float] = {
     push_up: 30.0,
@@ -116,8 +124,7 @@ one_rep[step_up     .kind] = 1.0
 one_rep[hollow_leg_hold.kind] = 15.0 / 120 # 120 secs is pretty hard, comparable with say 15 pull ups?
 one_rep[squat_hold  .kind] = 16.0 / 180
 # TODO ok, calf raises and step ups are different. wtf it was???
-
-from functools import lru_cache
+# fmt: on
 
 
 @lru_cache(None)
@@ -127,5 +134,6 @@ def vmap(x: SpecIsh) -> float | None:
     else:
         s = x
     return one_rep.get(s, None)
+
 
 del S

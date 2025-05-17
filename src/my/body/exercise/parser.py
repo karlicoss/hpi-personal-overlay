@@ -1,6 +1,7 @@
 '''
 Some helpers for manual exercise parsing
 '''
+
 import re
 from datetime import datetime
 from functools import lru_cache
@@ -26,10 +27,7 @@ def _matchers() -> dict[str, Spec]:
 def kinds(x: str) -> list[Spec]:
     M = _matchers()
     x = x.lower()
-    keys = [
-        m for m in M
-        if re.search(rf'(^|\W){m}(\W|$)', x) is not None
-    ]
+    keys = [m for m in M if re.search(rf'(^|\W){m}(\W|$)', x) is not None]
     # hacky. if there only two, maybe can resolve the tie by picking more specific one?
     if len(keys) == 2:
         [a, b] = keys
@@ -43,7 +41,7 @@ def kinds(x: str) -> list[Spec]:
     return [M[k] for k in keys]
 
 
-def extract_sets_reps(x: str, kind: Spec | None=None) -> tuple[int, float]:
+def extract_sets_reps(x: str, kind: Spec | None = None) -> tuple[int, float]:
     if kind is not None and not kind.has_reps:
         # todo not sure... might want to return None here?
         return (0, 0.0)
@@ -51,7 +49,7 @@ def extract_sets_reps(x: str, kind: Spec | None=None) -> tuple[int, float]:
     # findall wants non-capturing groups...
     frgx = r'\d+(?:\.\d+)?'
     ## first try 'set x reps' format
-    res = re.findall(fr'\d+\s*x\s*{frgx}', x)
+    res = re.findall(rf'\d+\s*x\s*{frgx}', x)
     if len(res) == 1:
         # ok, unique match, actually extract sets & reps
         [ss, rs] = re.split('[ x]+', res[0])
@@ -77,17 +75,19 @@ def extract_dt(x: str) -> tuple[datetime | None, str]:
         return (None, x)
     r = ress[0]
     dt = parse_org_datetime(r)
-    x = x.replace(r, '') # meh
+    x = x.replace(r, '')  # meh
     return (dt, x)
 
 
 def extract_extra(x: str) -> tuple[float | None, str]:
+    # fmt: off
     repls = [
         (r'(2x5|4)\s*kg(?: (?:ankle|wrist|elbow))? weights?', ''),
         (r'(\d+)\s*kg( vest)?'                              , ''),
         # todo don't remember if 4kg was 2x2 kg? .. yeah, I think so
         (r'tabata \d+/\d+'                                  , ''),
     ]
+    # fmt: on
     ews = []
     for f, t in repls:
         assert t == '', (f, t)  #  I think I indended to support non-empty replacements later? not sure
@@ -101,9 +101,8 @@ def extract_extra(x: str) -> tuple[float | None, str]:
             continue
 
         v = m.group(1)
-        v = '10' if v == '2x5' else v # ugh
+        v = '10' if v == '2x5' else v  # ugh
         ews.append(float(v))
-
 
         m = re.search(f, x)
         assert m is None, m
@@ -113,21 +112,21 @@ def extract_extra(x: str) -> tuple[float | None, str]:
 # todo parameterize
 def test_extract_sets_reps() -> None:
     from .specs import push_up
+
+    # fmt: off
     for h, e in [
-            ('3x 30 squats', (3, 30))
+        ('3x 30 squats', (3, 30))
     ]:
+    # fmt: on
         r = extract_sets_reps(h, kind=push_up)
         assert r == e
 
+
 def test_extract_extra() -> None:
-    ew, rest = extract_extra(
-        '60 squats + 2x5kg elbow weights + 10kg vest'
-    )
+    ew, rest = extract_extra('60 squats + 2x5kg elbow weights + 10kg vest')
     assert ew == 20.0
     assert rest.strip() == '60 squats +  +'
-    ew, rest = extract_extra(
-        '3x12 dips slow tabata 60/240 interleaved'
-    )
+    ew, rest = extract_extra('3x12 dips slow tabata 60/240 interleaved')
     assert ew is None, ew
     assert rest.strip() == '3x12 dips slow  interleaved'
 

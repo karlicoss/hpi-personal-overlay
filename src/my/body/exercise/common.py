@@ -22,6 +22,7 @@ class Exercise(NamedTuple):
         if reps is None:
             return None
         from . import specs
+
         mult = specs.vmap(self.kind)
         if mult is None:
             return None

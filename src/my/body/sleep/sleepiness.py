@@ -1,6 +1,7 @@
 '''
 Sleepiness during the day, manually logged in org-mode
 '''
+
 import re
 
 from my import orgmode
@@ -33,9 +34,7 @@ def _iter_sleepiness():
         has_tag = 'sleepiness' in entry.tags
         has_marker = any(re.search(m, heading.lower()) is not None for m in _markers)
         if not has_marker and not has_tag:
-            yield {
-                'error': f'no marker: {heading}'
-            }
+            yield {'error': f'no marker: {heading}'}
             return
 
         yield {
@@ -82,11 +81,13 @@ def pre_dataframe():
 @cdf
 def dataframe() -> DataFrameT:
     import pandas as pd  # type: ignore[import-untyped]
+
     return pd.DataFrame(pre_dataframe())
 
 
 def stats() -> Stats:
     return stat(dataframe)
+
 
 # TODO have to fill with defaults? Or do it on receive site?
 # TODO ok, so have to do it carefully. need to grab stuff from capture?

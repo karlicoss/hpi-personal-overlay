@@ -18,14 +18,17 @@ def overrides() -> dict[str, str]:
     # to dump the initial table:
     # sqlite3 taplog.db 'SELECT printf("| %6d | %s |", _id, lower(note)) FROM log WHERE cat1="ex" ORDER BY lower(note)'
     import orgparse
+
     wlog = orgparse.load(user_config.workout_log)
+    # fmt: off
     [table] = collect(
         wlog,
         lambda n: [] if n.heading != 'Taplog overrides' else [x for x in n.body_rich if isinstance(x, Table)]
     )
+    # fmt: on
     res = {}
     for row in table.as_dicts:
-        rid  = row['id']
+        rid = row['id']
         note = row['note']
         res[rid] = note
     return res
@@ -41,9 +44,7 @@ def _with_overrides() -> Iterable[Res[T.Entry]]:
             patched += 1
 
         # I've messed up calculating the vest weight at some point
-        e.row['note'] = e.row['note'] \
-          .replace('15kg' , '10kg' )  \
-          .replace('15 kg', '10 kg')
+        e.row['note'] = e.row['note'].replace('15kg', '10kg').replace('15 kg', '10 kg')
 
         yield e
     if patched == 0:
@@ -71,7 +72,7 @@ def entries() -> Iterable[Res[Exercise]]:
         yield Exercise(
             dt=e.timestamp,
             kind=k.kind,
-            reps=e.number, # FIXME sets/tabata
+            reps=e.number,  # FIXME sets/tabata
             note=e.note,
             extra_weight=ew,
             src='taplog',

@@ -8,6 +8,8 @@ DateIsh = datetime | date | str
 
 
 is_holiday_orig = _ORIG.is_holiday
+
+
 def is_holiday(d: DateIsh) -> bool:
     # if it's a public holiday, definitely a holiday?
     if is_holiday_orig(d):
@@ -16,6 +18,8 @@ def is_holiday(d: DateIsh) -> bool:
     if is_day_off_work(d):
         return True
     return False
+
+
 _ORIG.is_holiday = is_holiday  # type: ignore[attr-defined]
 # NOTE: without overriding the original, the functions from M itself are capturing the old function?
 # need to test it...
@@ -40,6 +44,7 @@ def _days_off_work() -> list[date]:
 
 def _iter_work_data() -> Iterable[tuple[date, int]]:
     from my.config.holidays_data import HOLIDAYS_DATA  # type: ignore[import-not-found]
+
     emitted = 0
     for x in HOLIDAYS_DATA.splitlines():
         m = re.search(r'(\d\d/\d\d/\d\d\d\d)(.*)-(\d+.\d+) days \d+.\d+ days', x)
@@ -51,11 +56,11 @@ def _iter_work_data() -> Iterable[tuple[date, int]]:
 
         d = datetime.strptime(ds, '%d/%m/%Y').date()
         dd, u = dayss.split('.')
-        assert u == '00' # TODO meh
+        assert u == '00'  # TODO meh
 
         yield d, int(dd)
         emitted += 1
-    assert emitted > 5 # arbitrary, just a sanity check.. (todo move to tests?)
+    assert emitted > 5  # arbitrary, just a sanity check.. (todo move to tests?)
 
 
 def _iter_days_off_work() -> Iterable[date]:

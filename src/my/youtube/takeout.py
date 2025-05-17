@@ -12,6 +12,7 @@ _ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
 
 _orig_watched = _ORIG._watched
 
+
 # TODO import watched only for type checking? hmm
 def _watched() -> Iterator[Res[Any]]:
     from my.time.tz.main import localize
@@ -26,5 +27,6 @@ def _watched() -> Iterator[Res[Any]]:
         when = localize(w.when, policy='convert')
         w = replace(w, when=when)
         yield w
+
 
 _ORIG._watched = _watched  # type: ignore[attr-defined]
