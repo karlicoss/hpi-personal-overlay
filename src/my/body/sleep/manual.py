@@ -8,14 +8,14 @@ from datetime import datetime
 from typing import NamedTuple
 
 import my.config
-from my.core import LazyLogger, Stats, stat
+from my.core import Stats, make_logger, stat
 from my.core.error import Res, extract_error_datetime, set_error_datetime
 from my.core.orgmode import one_table, parse_org_datetime
 from my.core.pandas import DataFrameT
 from my.core.pandas import check_dataframe as cdf
 from my.time.tz import main as TZ
 
-log = LazyLogger(__name__)
+log = make_logger(__name__)
 
 
 class Entry(NamedTuple):
