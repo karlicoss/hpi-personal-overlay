@@ -7,7 +7,6 @@ _ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
 
 from . import manual
 
-
 orig = _ORIG.Combine.dataframe
 def dataframe_override(self, *args, **kwargs):
     # call the original method first
@@ -18,10 +17,10 @@ def dataframe_override(self, *args, **kwargs):
 
     ## and now merge (needs a bit of elaborate logic to handle errors properly)
     # TODO implement a generic method, reuse in cross_trainer??
-    import pandas as pd # type: ignore[import-untyped]
+    import pandas as pd  # type: ignore[import-untyped]
     rows = []
     idxs = [] # type: ignore[var-annotated]
-    for i, row in mdf.iterrows():
+    for _i, row in mdf.iterrows():
         rd = row.to_dict()
         is_error = not pd.isna(rd['error'])
         if is_error:
@@ -70,6 +69,7 @@ _ORIG.Combine.dataframe = dataframe_override
 ####
 
 from datetime import timedelta
+
 _DELTA = timedelta(hours=20)
 
 

@@ -1,22 +1,23 @@
 from datetime import datetime
-from typing import NamedTuple, Optional
+from typing import NamedTuple
+
 
 # todo each exercise has standard units? not sure
 class Exercise(NamedTuple):
     dt: datetime
     kind: str
-    reps: Optional[float]
+    reps: float | None
     note: str
 
     # todo hmm. hacky, not sure about it...
-    extra_weight: Optional[float] = None
+    extra_weight: float | None = None
 
     # todo not sure, would be nice to somehow make it automatic?
     src: str = ''
 
     # todo move to a separate file? volume_model?
     @property
-    def volume(self) -> Optional[float]:
+    def volume(self) -> float | None:
         reps = self.reps
         if reps is None:
             return None

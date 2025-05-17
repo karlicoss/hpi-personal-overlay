@@ -2,10 +2,9 @@ from my.core.experimental import import_original_module
 
 _ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
 
-from datetime import datetime, date
-from typing import Union
+from datetime import date, datetime
 
-DateIsh = Union[datetime, date, str]
+DateIsh = datetime | date | str
 
 
 is_holiday_orig = _ORIG.is_holiday
@@ -23,10 +22,11 @@ _ORIG.is_holiday = is_holiday  # type: ignore[attr-defined]
 
 ###
 
-from datetime import datetime, date, datetime, timedelta
-from functools import lru_cache
-from typing import Iterable, Tuple, List
 import re
+from collections.abc import Iterable
+from datetime import date, datetime, timedelta
+from functools import lru_cache
+
 
 def is_day_off_work(d: DateIsh) -> bool:
     day = _ORIG.as_date(d)
@@ -34,12 +34,12 @@ def is_day_off_work(d: DateIsh) -> bool:
 
 
 @lru_cache(1)
-def _days_off_work() -> List[date]:
+def _days_off_work() -> list[date]:
     return list(_iter_days_off_work())
 
 
-def _iter_work_data() -> Iterable[Tuple[date, int]]:
-    from my.config.holidays_data import HOLIDAYS_DATA   # type: ignore[import-not-found]
+def _iter_work_data() -> Iterable[tuple[date, int]]:
+    from my.config.holidays_data import HOLIDAYS_DATA  # type: ignore[import-not-found]
     emitted = 0
     for x in HOLIDAYS_DATA.splitlines():
         m = re.search(r'(\d\d/\d\d/\d\d\d\d)(.*)-(\d+.\d+) days \d+.\d+ days', x)

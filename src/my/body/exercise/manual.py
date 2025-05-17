@@ -1,27 +1,25 @@
 '''
 Manually logged exercise from various sources (taplog/org-mode/etc)
 '''
+from datetime import timezone
 from itertools import chain
-from typing import Dict, Iterable
 
-from my.core.pandas import DataFrameT, check_dataframe as cdf, error_to_row
-from .common import Exercise
+from my.core import Stats, stat
+from my.core.pandas import DataFrameT, check_dataframe, error_to_row
 
-from . import taplog, orgmode
+from . import orgmode, taplog
 
 
-@cdf
+@check_dataframe
 def dataframe() -> DataFrameT:
-    from datetime import timezone
     pre_df = (
         error_to_row(e, tz=timezone.utc) if isinstance(e, Exception) else dict(volume=e.volume, **e._asdict())
         for e in chain(taplog.entries(), orgmode.entries())
     )
 
-    import pandas as pd # type: ignore[import-untyped]
+    import pandas as pd  # type: ignore[import-untyped]
     return pd.DataFrame(pre_df)
 
 
-from my.core import stat, Stats
 def stats() -> Stats:
     return stat(dataframe)

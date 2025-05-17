@@ -1,17 +1,17 @@
-from typing import Dict, Iterable
+from collections.abc import Iterable
 
-from my.core import Res
+import my.taplog as T
+from my.config import exercise as user_config
+from my.core import Res, Stats, stat
 from my.core.cachew import mcachew
-from my.core.orgmode import collect, Table
+from my.core.orgmode import Table, collect
 from my.error import attach_dt
-from ... import taplog as T
+
 from . import parser
 from .common import Exercise
 
-from my.config import exercise as user_config
 
-
-def overrides() -> Dict[str, str]:
+def overrides() -> dict[str, str]:
     '''
     Manual overrides for some entries with typos etc, to simplify further automated parsing
     '''
@@ -25,9 +25,9 @@ def overrides() -> Dict[str, str]:
     )
     res = {}
     for row in table.as_dicts:
-        id   = row['id']
+        rid  = row['id']
         note = row['note']
-        res[id] = note
+        res[rid] = note
     return res
 
 
@@ -50,7 +50,7 @@ def _with_overrides() -> Iterable[Res[T.Entry]]:
         yield RuntimeError('no overrides were matched')
 
 
-@mcachew
+@mcachew()
 def entries() -> Iterable[Res[Exercise]]:
     for e in _with_overrides():
         if isinstance(e, Exception):
@@ -78,6 +78,5 @@ def entries() -> Iterable[Res[Exercise]]:
         )
 
 
-from ...core import stat, Stats
 def stats() -> Stats:
     return stat(entries)

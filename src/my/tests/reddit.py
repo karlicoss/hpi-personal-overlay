@@ -1,17 +1,13 @@
 from datetime import datetime, timezone
 
-from my.core.cfg import tmp_config
-from my.core.utils.itertools import make_dict
-
-# todo ugh, it's discovered as a test???
-from .common import testdata
-
 import pytest
 
 # deliberately use mixed style imports on the top level and inside the methods to test tmp_config stuff
-import my.reddit.rexport as my_reddit_rexport
 import my.reddit.rexport_misc as my_reddit_rexport_misc
-import my.reddit.all as my_reddit_all
+from my.core.cfg import tmp_config
+
+# todo ugh, it's discovered as a test???
+from .common import testdata
 
 
 def test_events() -> None:

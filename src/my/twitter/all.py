@@ -1,10 +1,9 @@
-from typing import Iterator
+from collections.abc import Iterator
 
 from my.core import Res
-from my.twitter import talon
-from my.twitter.common import merge_tweets, Tweet
-
 from my.core.experimental import import_original_module
+from my.twitter import talon
+from my.twitter.common import Tweet, merge_tweets
 
 _ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
 

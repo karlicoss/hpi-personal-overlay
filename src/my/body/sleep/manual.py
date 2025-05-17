@@ -1,16 +1,19 @@
 '''
 Manually tracked sleep data: sleepiness, dreams, whether I woke up on time, grogginess during sleep, etc.
 '''
-from datetime import datetime
 import re
-from typing import NamedTuple, Iterator
-
-from ...core import LazyLogger
-from ...core.error import Res, set_error_datetime, extract_error_datetime
-from ...core.orgmode import parse_org_datetime, one_table
-from ...time.tz import main as TZ
+from collections.abc import Iterator
+from datetime import datetime
+from typing import NamedTuple
 
 import my.config
+from my.core import LazyLogger, Stats, stat
+from my.core.error import Res, extract_error_datetime, set_error_datetime
+from my.core.orgmode import one_table, parse_org_datetime
+from my.core.pandas import DataFrameT
+from my.core.pandas import check_dataframe as cdf
+from my.time.tz import main as TZ
+
 user_config = my.config.body.sleep  # type: ignore[attr-defined]
 
 log = LazyLogger(__name__)
@@ -75,7 +78,7 @@ def iter_sleep_table() -> Iterator[Result]:
             rmental -= 0.5 # meh
         return (rdreams, rmental, wakeup)
 
-    import orgparse
+    import orgparse  # TODO add to REQUIRES?
     o = orgparse.load(user_config.sleep_log)
     table = one_table(o)
     # TODO use TypedTable, similar to cross_trainder df?
@@ -131,18 +134,16 @@ def pre_dataframe():
             }
 
 
-from my.core.pandas import DataFrameT, check_dataframe as cdf
 # TODO make sure error column is always preset... maybe also add to cdf?
 # also it needs to be str, so contain None, not NaN?
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd # type: ignore[import-untyped]
+    import pandas as pd  # type: ignore[import-untyped]
     return pd.DataFrame(pre_dataframe())
     # TODO make sure date is unique and warn?
     # maybe could be part of cdf?
 
 
-from my.core import stat, Stats
 def stats() -> Stats:
     return stat(dataframe)
 
