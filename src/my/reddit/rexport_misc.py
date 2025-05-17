@@ -12,16 +12,18 @@ from typing import (
     Mapping,
     NamedTuple,
     Sequence,
+    TypeAlias,
 )
 
-from my.core.common import mcachew, make_dict
+from my.core.utils.itertools import make_dict
+from my.core.cachew import mcachew
 
 from my.reddit import rexport as ORIG
 
 
 ##
 logger = ORIG.logger
-Uid = ORIG.Uid
+Uid: TypeAlias = ORIG.Uid
 Save = ORIG.Save
 inputs = ORIG.inputs
 dal = ORIG.dal

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from my.core.cfg import tmp_config
-from my.core.common import make_dict
+from my.core.utils.itertools import make_dict
 
 # todo ugh, it's discovered as a test???
 from .common import testdata

@@ -6,15 +6,15 @@ from functools import lru_cache
 import re
 from typing import NamedTuple, Iterator
 
-from ...core import LazyLogger
-from ...core.error import Res, set_error_datetime, extract_error_datetime
-from ...core.orgmode import parse_org_datetime
-from ...time.tz import main as TZ
-from ... import orgmode
+from my.core import LazyLogger
+from my.core.error import Res, set_error_datetime, extract_error_datetime
+from my.core.orgmode import parse_org_datetime
+from my.time.tz import main as TZ
+from my import orgmode
 
 
 import my.config
-user_config = my.config.body.sleep
+user_config = my.config.body.sleep  # type: ignore[attr-defined]
 
 log = LazyLogger(__name__)
 
@@ -85,14 +85,14 @@ def pre_dataframe():
             yield e
 
 
-from ...core.pandas import DataFrameT, check_dataframe as cdf
+from my.core.pandas import DataFrameT, check_dataframe as cdf
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd # type: ignore
+    import pandas as pd # type: ignore[import-untyped]
     return pd.DataFrame(pre_dataframe())
 
 
-from ...core import stat, Stats
+from my.core import stat, Stats
 def stats() -> Stats:
     return stat(dataframe)
 
