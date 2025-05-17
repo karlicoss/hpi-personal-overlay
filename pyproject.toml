@@ -22,7 +22,12 @@ requires-python = ">=3.10"
 
 
 [project.optional-dependencies]
-optional = []
+optional = [
+    "colorlog",
+]
+hpi = [
+    "hpi",
+]
 
 [dependency-groups]
 testing = [
@@ -31,11 +36,6 @@ testing = [
     "mypy",
     "lxml",  # for mypy html coverage
 ]
-# TODO not sure if should be optional dependency instead?
-hpi = [
-    "hpi",
-]
-
 
 
 # workaround for error during uv publishing
@@ -54,3 +54,8 @@ packages = ["src/my"]
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.uv.sources]
+# NOTE: seems like this impacts dependencies and optional dependencies her
+#   , but not dependency groups or deps = inside tox? weird.
+hpi = { git = "https://github.com/karlicoss/HPI" }

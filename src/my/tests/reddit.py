@@ -52,6 +52,7 @@ def test_disappearing() -> None:
     # but I guess it was just a short glitch... so whatever
     evs = my_reddit_rexport_misc.events()
     favs = [s.kind for s in evs if s.text == 'favorited']
+    assert len(favs) > 0
     [deal_with_it] = [f for f in favs if f.title == '"Deal with it!"']
     assert deal_with_it.backup_dt == datetime(2019, 4, 1, 23, 10, 25, tzinfo=timezone.utc)
 
@@ -59,6 +60,7 @@ def test_disappearing() -> None:
 def test_unfavorite() -> None:
     evs = my_reddit_rexport_misc.events()
     unfavs = [s for s in evs if s.text == 'unfavorited']
+    assert len(unfavs) > 0
     [xxx] = [u for u in unfavs if u.eid == 'unf-19ifop']
     assert xxx.dt == datetime(2019, 1, 29, 10, 10, 20, tzinfo=timezone.utc)
 
@@ -76,6 +78,8 @@ def prepare():
 
 
     # NOTE ugh. need to .* prefix to account for my.orig.my.reddit... meh
-    with tmp_config(modules='.*.my.reddit.rexport.*', config=config):
-        assert len(my_reddit_rexport_misc.inputs()) < 10
+    # TODO maybe not relevant anymore?? ^^
+    with tmp_config(modules='my.reddit.rexport.*', config=config):
+        # sanity check to make sure it picked up test config
+        assert 0 < len(my_reddit_rexport_misc.inputs()) < 10
         yield

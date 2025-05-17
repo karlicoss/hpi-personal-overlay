@@ -4,8 +4,8 @@ import my.taplog as T
 from my.config import exercise as user_config
 from my.core import Res, Stats, stat
 from my.core.cachew import mcachew
+from my.core.error import attach_dt
 from my.core.orgmode import Table, collect
-from my.error import attach_dt
 
 from . import parser
 from .common import Exercise
