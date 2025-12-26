@@ -3,16 +3,16 @@ from datetime import datetime
 from itertools import chain
 from pathlib import Path
 
+import my.orgmode as my_orgmode
+
 # todo might need to merge common and parser?
 import orgparse
 from more_itertools import ilen
-from orgparse import OrgNode
-
-import my.orgmode as O
 from my.core import Res, Stats, make_logger, stat
 from my.core.cachew import cache_dir, mcachew
 from my.core.error import attach_dt
 from my.time.tz import main as TZ
+from orgparse import OrgNode
 
 from . import parser
 from .common import Exercise
@@ -34,7 +34,7 @@ def asdt(x) -> datetime | None:
 # helper to attach error context
 def parse_error(e: Exception, org: OrgNode, *, dt: datetime | None = None) -> Exception:
     if dt is None:
-        dt, _ = O._created(org)
+        dt, _ = my_orgmode._created(org)
         dt = asdt(dt)
     ex = RuntimeError(f'While parsing {org.env.filename}:{org.linenumber} {org.heading}')
     ex.__cause__ = e
@@ -69,7 +69,7 @@ def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
     [kind] = parser.kinds(heading)  # todo kinda annoying to do it twice..
 
     # FIXME: need shared attributes?
-    cdt, _ = O._created(o)
+    cdt, _ = my_orgmode._created(o)
     pdt = asdt(cdt)
 
     def aux(heading: str) -> Iterable[Res[Exercise]]:
@@ -120,9 +120,9 @@ def org_to_exercise(o: OrgNode) -> Iterable[Res[Exercise]]:
 
 
 @mcachew(
-    cache_path=lambda f: cache_dir() / __name__ / O._sanitize(f),
+    cache_path=lambda f: cache_dir() / __name__ / my_orgmode._sanitize(f),
     force_file=True,
-    depends_on=lambda f: (f, f.stat().st_mtime),  # type: ignore[misc]
+    depends_on=lambda f: (f, f.stat().st_mtime),
 )
 def _from_file(f: Path) -> Iterable[Res[Exercise]]:
     for o in _get_outlines(f):
@@ -137,7 +137,7 @@ def _from_file(f: Path) -> Iterable[Res[Exercise]]:
 
 
 def _raw() -> Iterable[Res[Exercise]]:
-    for p in O.query().files:
+    for p in my_orgmode.query().files:
         yield from _from_file(p)
 
 
@@ -191,7 +191,7 @@ this should be handled by workout processor.. need to test?
         assert reps > 15  # todo more specific tests
     o = os.children[2]
     zz = list(org_to_exercise(o))
-    [a, b, c] = zz
+    [_a, b, c] = zz
     assert isinstance(b, Exercise)
     assert isinstance(c, Exercise)
     assert b.reps == 90

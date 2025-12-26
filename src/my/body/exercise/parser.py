@@ -67,8 +67,6 @@ def extract_sets_reps(x: str, kind: Spec | None = None) -> tuple[int, float]:
     return (sets, reps)
 
 
-
-
 def extract_dt(x: str) -> tuple[datetime | None, str]:
     ress = re.findall(r'\[.*\]', x)
     if len(ress) != 1:
