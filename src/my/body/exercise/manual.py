@@ -2,7 +2,7 @@
 Manually logged exercise from various sources (taplog/org-mode/etc)
 '''
 
-from datetime import timezone
+from datetime import UTC
 from itertools import chain
 
 from my.core import Stats, stat
@@ -14,7 +14,7 @@ from . import orgmode, taplog
 @check_dataframe
 def dataframe() -> DataFrameT:
     pre_df = (
-        error_to_row(e, tz=timezone.utc) if isinstance(e, Exception) else dict(volume=e.volume, **e._asdict())
+        error_to_row(e, tz=UTC) if isinstance(e, Exception) else dict(volume=e.volume, **e._asdict())
         for e in chain(taplog.entries(), orgmode.entries())
     )
 

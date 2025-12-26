@@ -1,11 +1,11 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+from my.core.cfg import tmp_config
 
 # deliberately use mixed style imports on the top level and inside the methods to test tmp_config stuff
 import my.reddit.rexport_misc as my_reddit_rexport_misc
-from my.core.cfg import tmp_config
 
 
 # FIXME ugh... copypasted from main hpi...
@@ -55,7 +55,7 @@ def test_disappearing() -> None:
     favs = [s.kind for s in evs if s.text == 'favorited']
     assert len(favs) > 0
     [deal_with_it] = [f for f in favs if f.title == '"Deal with it!"']
-    assert deal_with_it.backup_dt == datetime(2019, 4, 1, 23, 10, 25, tzinfo=timezone.utc)
+    assert deal_with_it.backup_dt == datetime(2019, 4, 1, 23, 10, 25, tzinfo=UTC)
 
 
 def test_unfavorite() -> None:
@@ -63,7 +63,7 @@ def test_unfavorite() -> None:
     unfavs = [s for s in evs if s.text == 'unfavorited']
     assert len(unfavs) > 0
     [xxx] = [u for u in unfavs if u.eid == 'unf-19ifop']
-    assert xxx.dt == datetime(2019, 1, 29, 10, 10, 20, tzinfo=timezone.utc)
+    assert xxx.dt == datetime(2019, 1, 29, 10, 10, 20, tzinfo=UTC)
 
 
 @pytest.fixture(autouse=True, scope='module')

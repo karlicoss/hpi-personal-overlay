@@ -1,21 +1,19 @@
 ### elaborate attempt of restoring favorite/unfavorite times
 import re
 from collections.abc import Iterable, Iterator, Mapping, Sequence
-from datetime import datetime, timezone
-from functools import lru_cache
+from datetime import UTC, datetime
+from functools import cache
 from multiprocessing import Pool
 from pathlib import Path
-from typing import (
-    NamedTuple,
-    TypeAlias,
-)
+from typing import NamedTuple
 
-from my.core.utils.itertools import make_dict
+from more_itertools import map_reduce, one
+
 from my.reddit import rexport as ORIG
 
 ##
 logger = ORIG.logger
-Uid: TypeAlias = ORIG.Uid
+type Uid = ORIG.Uid
 Save = ORIG.Save
 inputs = ORIG.inputs
 dal = ORIG.dal
@@ -57,7 +55,7 @@ def _get_bdate(bfile: Path) -> datetime:
     stem = stem.replace('T', '').replace('Z', '')  # adapt for arctee
     match = RE.search(stem)
     assert match is not None
-    bdt = datetime.strptime(match.group(1), "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+    bdt = datetime.strptime(match.group(1), "%Y%m%d%H%M%S").replace(tzinfo=UTC)
     return bdt
 
 
@@ -67,9 +65,11 @@ def _get_state(bfile: Path) -> dict[Uid, SaveWithDt]:
     bdt = _get_bdate(bfile)
 
     saves = [SaveWithDt(save, bdt) for save in dal.DAL([bfile]).saved()]
-    return make_dict(
-        sorted(saves, key=lambda p: p.save.created),
-        key=lambda s: s.save.sid,
+    # TODO hmm not really sure if it's better than make_dict?
+    return map_reduce(
+        sorted(saves, key=lambda p: (p.save.sid, p.save.created)),
+        keyfunc=lambda s: s.save.sid,
+        reducefunc=one,
     )
 
 
@@ -127,7 +127,8 @@ def _get_events(backups: Sequence[Path], *, parallel: bool = True) -> Iterator[E
 
     # TODO a bit awkward, favorited should compare lower than unfavorited?
 
-@lru_cache(1)
+
+@cache
 def events(*args, **kwargs) -> list[Event]:
     inp = inputs()
     # 2.2s for 300 files without cachew

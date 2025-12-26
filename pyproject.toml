@@ -3,8 +3,9 @@
 dynamic = ["version"]  # version is managed by build backend
 name = "HPI-overlay"
 dependencies = [
+    "hpi",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 
 ## these need to be set if you're planning to upload to pypi
 # description = "TODO"
@@ -25,23 +26,21 @@ requires-python = ">=3.10"
 optional = [
     "colorlog",
 ]
-hpi = [
-    "hpi",
-]
 
 [dependency-groups]
 testing = [
-    "pytest",
+    "pytest>=9",  # need version 9 for proper namespace package support
     "ruff",
-    "mypy",
-    "lxml",  # for mypy html coverage
+
+    "orgparse",
+    "HPI-overlay[optional]",
 ]
-
-
-# workaround for error during uv publishing
-# see https://github.com/astral-sh/uv/issues/9513#issuecomment-2519527822
-[tool.setuptools]
-license-files = []
+typecheck = [
+    { include-group = "testing" },
+    "mypy",
+    "lxml", # for mypy html coverage
+    "ty>=0.0.7",
+]
 
 
 [build-system]

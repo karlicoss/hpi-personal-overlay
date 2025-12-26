@@ -133,7 +133,7 @@ def vmap(x: SpecIsh) -> float | None:
         s = x.kind
     else:
         s = x
-    return one_rep.get(s, None)
+    return one_rep.get(s)
 
 
 del S
