@@ -38,6 +38,10 @@ typecheck = [
     "mypy",
     "lxml", # for mypy html coverage
     "ty>=0.0.35",
+
+    # TODO hmm need to include all dev type check deps from hpi somehow...
+    "types-decorator",
+
     { include-group = "testing" },
 ]
 
