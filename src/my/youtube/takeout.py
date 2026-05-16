@@ -29,4 +29,4 @@ def _watched() -> Iterator[Res[Any]]:
         yield w
 
 
-_ORIG._watched = _watched  # type: ignore[attr-defined]
+_ORIG._watched = _watched  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]

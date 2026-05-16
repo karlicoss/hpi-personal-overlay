@@ -1,3 +1,8 @@
+# FIXME shit. if we overlay a module, we can't install it properly anymore?
+REQUIRES = [
+    'workalendar',  # library to determine public holidays
+]
+
 from my.core.experimental import import_original_module
 
 _ORIG = import_original_module(__name__, __file__, star=True, globals=globals())
@@ -20,7 +25,7 @@ def is_holiday(d: DateIsh) -> bool:
     return False
 
 
-_ORIG.is_holiday = is_holiday  # type: ignore[attr-defined]
+_ORIG.is_holiday = is_holiday  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 # NOTE: without overriding the original, the functions from M itself are capturing the old function?
 # need to test it...
 
@@ -43,7 +48,7 @@ def _days_off_work() -> list[date]:
 
 
 def _iter_work_data() -> Iterable[tuple[date, int]]:
-    from my.config.holidays_data import HOLIDAYS_DATA  # type: ignore[import-not-found]
+    from my.config.holidays_data import HOLIDAYS_DATA  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
 
     emitted = 0
     for x in HOLIDAYS_DATA.splitlines():

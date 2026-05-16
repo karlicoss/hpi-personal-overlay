@@ -66,7 +66,7 @@ def iter_sleep_table() -> Iterator[Result]:
         dreams = set(rpunct(dreamss).split())
         extra = dreams.difference({'0', '1', '2'})
         assert len(extra) == 0, extra
-        rdreams = _dream_score_map.get(frozenset({int(x) for x in dreams}), None)
+        rdreams = _dream_score_map.get(frozenset({int(x) for x in dreams}))
         assert rdreams is not None
 
         vals = {'0', '1', '2'}
@@ -80,7 +80,7 @@ def iter_sleep_table() -> Iterator[Result]:
             rmental -= 0.5  # meh
         return (rdreams, rmental, wakeup)
 
-    user_config = my.config.body.sleep  # type: ignore[attr-defined]
+    user_config = my.config.body.sleep  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
 
     import orgparse  # TODO add to REQUIRES?
 
@@ -93,7 +93,7 @@ def iter_sleep_table() -> Iterator[Result]:
         try:
             dt = parse_org_datetime(row['date'])
             # todo hmm. not sure if should localize here... maybe make a version of localize that falls back on utc?
-            dt = TZ.localize(dt)
+            dt = TZ.localize(dt)  # FIXME ok, this takes fucking ages...
         except Exception as e:
             ex.__cause__ = e
             yield ex
@@ -143,7 +143,7 @@ def pre_dataframe():
 # also it needs to be str, so contain None, not NaN?
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd  # type: ignore[import-untyped]
+    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[unresolved-import]
 
     return pd.DataFrame(pre_dataframe())
     # TODO make sure date is unique and warn?
