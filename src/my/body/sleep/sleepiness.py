@@ -71,6 +71,7 @@ def pre_dataframe():
     for e in _iter_sleepiness():
         if isinstance(e, Exception):
             edt = extract_error_datetime(e)
+            # TODO need to typedict these? to make sure dates etc are handled properly
             yield {
                 'dt': edt,
                 'error': str(e),
@@ -81,7 +82,7 @@ def pre_dataframe():
 
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd  # type: ignore[import-untyped]
+    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[unresolved-import]
 
     return pd.DataFrame(pre_dataframe())
 

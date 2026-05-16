@@ -1,24 +1,20 @@
 # see https://github.com/karlicoss/pymplate for up-to-date reference
 [project]
 dynamic = ["version"]  # version is managed by build backend
-name = "HPI-overlay"
+name = "HPI-overlay"  # FIXME rename? dashes are annoying in package names
 dependencies = [
     "hpi",
 ]
 requires-python = ">=3.12"
 
-## these need to be set if you're planning to upload to pypi
-# description = "TODO"
-# license = {file = "LICENSE"}
-# authors = [
-#     {name = "Dima Gerasimov (@karlicoss)", email = "karlicoss@gmail.com"},
-# ]
-# maintainers = [
-#     {name = "Dima Gerasimov (@karlicoss)", email = "karlicoss@gmail.com"},
-# ]
-#
-# [project.urls]
-# Homepage = "https://github.com/karlicoss/pymplate"
+## these are only useful for pypi
+description = "Personal HPI modules"  # shows on project page/in search
+license     = {file = "LICENSE"}
+authors     = [{name = "Dima Gerasimov (@karlicoss)", email = "karlicoss@gmail.com"}]
+maintainers = [{name = "Dima Gerasimov (@karlicoss)", email = "karlicoss@gmail.com"}]
+
+[project.urls]  # pypi will fetch some github stats/link, so somewhat useful
+Homepage = "https://github.com/karlicoss/hpi-personal-overlay"
 ##
 
 
@@ -28,6 +24,9 @@ optional = [
 ]
 
 [dependency-groups]
+# TODO: not sure, on the one hand could just use 'standard' dev dependency group
+# On the other hand, it's a bit annoying that it's always included by default? 
+# To make sure it's not included, need to use `uv run --exact --no-default-groups ...`
 testing = [
     "pytest>=9",  # need version 9 for proper namespace package support
     "ruff",
@@ -36,10 +35,10 @@ testing = [
     "HPI-overlay[optional]",
 ]
 typecheck = [
-    { include-group = "testing" },
     "mypy",
     "lxml", # for mypy html coverage
-    "ty>=0.0.7",
+    "ty>=0.0.35",
+    { include-group = "testing" },
 ]
 
 
@@ -53,6 +52,10 @@ packages = ["src/my"]
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.hatch.version.raw-options]
+version_scheme = "python-simplified-semver"
+local_scheme = "dirty-tag"
 
 [tool.uv.sources]
 # NOTE: seems like this impacts dependencies and optional dependencies her
