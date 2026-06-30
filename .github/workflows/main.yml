@@ -40,23 +40,19 @@ jobs:
     # continue-on-error: ${{ matrix.platform == 'windows-latest' }}
 
     steps:
-    # ugh https://github.com/actions/toolkit/blob/main/docs/commands.md#path-manipulation
-    - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-
     - uses: actions/checkout@v6
       with:
         submodules: recursive
         fetch-depth: 0  # nicer to have all git history when debugging/for tests
 
-    - uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-      
     - uses: astral-sh/setup-uv@v8.1.0
       with:
+        python-version: ${{ matrix.python-version }}
         enable-cache: false  # we don't have lock files during initial CI checkout, so can't use them as cache key
 
     - uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true  # restrict to the user who kicked off pipeline
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
     # explicit bash command is necessary for Windows CI runner, otherwise it thinks it's cmd...
