@@ -60,7 +60,9 @@ def _get_outlines(f: Path) -> Iterable[Res[OrgNode]]:
         for c in cur.children:
             yield from extract(c)
 
-    yield from extract(orgparse.load(f))
+    # root node is the file itself rather than an outline, so start from its children
+    for c in orgparse.load(f).children:
+        yield from extract(c)
 
 
 # TODO move over tests from private workout provider
