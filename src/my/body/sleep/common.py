@@ -20,7 +20,7 @@ def dataframe_override(self, *args, **kwargs):
 
     ## and now merge (needs a bit of elaborate logic to handle errors properly)
     # TODO implement a generic method, reuse in cross_trainer??
-    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[unresolved-import]
+    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[import-not-found]
 
     rows = []
     idxs = []  # type: ignore[var-annotated]
