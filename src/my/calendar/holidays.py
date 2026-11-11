@@ -25,7 +25,7 @@ def is_holiday(d: DateIsh) -> bool:
     return False
 
 
-_ORIG.is_holiday = is_holiday  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+_ORIG.is_holiday = is_holiday  # type: ignore[attr-defined]  # ty: ignore[missing-attribute]
 # NOTE: without overriding the original, the functions from M itself are capturing the old function?
 # need to test it...
 
@@ -48,7 +48,7 @@ def _days_off_work() -> list[date]:
 
 
 def _iter_work_data() -> Iterable[tuple[date, int]]:
-    from my.config.holidays_data import HOLIDAYS_DATA  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
+    from my.config.holidays_data import HOLIDAYS_DATA  # type: ignore[import-not-found]  # ty: ignore[import-not-found]
 
     emitted = 0
     for x in HOLIDAYS_DATA.splitlines():

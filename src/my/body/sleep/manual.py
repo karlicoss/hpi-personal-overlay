@@ -80,7 +80,7 @@ def iter_sleep_table() -> Iterator[Result]:
             rmental -= 0.5  # meh
         return (rdreams, rmental, wakeup)
 
-    user_config = my.config.body.sleep  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+    user_config = my.config.body.sleep  # type: ignore[attr-defined]  # ty: ignore[missing-attribute]
 
     import orgparse  # TODO add to REQUIRES?
 
@@ -143,7 +143,7 @@ def pre_dataframe():
 # also it needs to be str, so contain None, not NaN?
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[unresolved-import]
+    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[import-not-found]
 
     return pd.DataFrame(pre_dataframe())
     # TODO make sure date is unique and warn?

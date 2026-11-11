@@ -18,7 +18,7 @@ def dataframe() -> DataFrameT:
         for e in chain(taplog.entries(), orgmode.entries())
     )
 
-    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[unresolved-import]
+    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[import-not-found]
 
     return pd.DataFrame(pre_df)
 
