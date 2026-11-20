@@ -43,6 +43,7 @@ typecheck = [
 
     # TODO hmm need to include all dev type check deps from hpi somehow...
     "types-decorator",
+    "pandas-stubs",
 
     { include-group = "testing" },
 ]

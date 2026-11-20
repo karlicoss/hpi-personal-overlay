@@ -82,7 +82,7 @@ def pre_dataframe():
 
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[import-not-found]
+    import pandas as pd
 
     return pd.DataFrame(pre_dataframe())
 

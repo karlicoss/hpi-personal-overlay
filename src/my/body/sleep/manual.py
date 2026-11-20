@@ -143,7 +143,7 @@ def pre_dataframe():
 # also it needs to be str, so contain None, not NaN?
 @cdf
 def dataframe() -> DataFrameT:
-    import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[import-not-found]
+    import pandas as pd
 
     return pd.DataFrame(pre_dataframe())
     # TODO make sure date is unique and warn?
