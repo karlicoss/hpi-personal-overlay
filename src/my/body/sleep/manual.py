@@ -80,7 +80,7 @@ def iter_sleep_table() -> Iterator[Result]:
             rmental -= 0.5  # meh
         return (rdreams, rmental, wakeup)
 
-    user_config = my.config.body.sleep  # type: ignore[attr-defined]  # ty: ignore[missing-attribute]
+    user_config = my.config.body.sleep
 
     import orgparse  # TODO add to REQUIRES?
 

@@ -1,5 +1,13 @@
 from datetime import datetime
+from pathlib import Path
 from typing import NamedTuple
+
+
+def workout_log() -> Path | str:
+    """Org file shared by the cross-trainer log and Taplog overrides."""
+    from my.config import exercise
+
+    return exercise.workout_log
 
 
 # todo each exercise has standard units? not sure

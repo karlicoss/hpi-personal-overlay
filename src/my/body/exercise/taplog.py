@@ -1,14 +1,13 @@
 from collections.abc import Iterable
 
 import my.taplog as T
-from my.config import exercise as user_config
 from my.core import Res, Stats, stat
 from my.core.cachew import mcachew
 from my.core.error import attach_dt
 from my.core.orgmode import Table, collect
 
 from . import parser
-from .common import Exercise
+from .common import Exercise, workout_log
 
 
 def overrides() -> dict[str, str]:
@@ -19,7 +18,7 @@ def overrides() -> dict[str, str]:
     # sqlite3 taplog.db 'SELECT printf("| %6d | %s |", _id, lower(note)) FROM log WHERE cat1="ex" ORDER BY lower(note)'
     import orgparse
 
-    wlog = orgparse.load(user_config.workout_log)
+    wlog = orgparse.load(workout_log())
     # fmt: off
     [table] = collect(
         wlog,
