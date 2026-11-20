@@ -34,6 +34,7 @@ testing = [
     "ruff",
 
     "orgparse",
+    "pandas",
     "HPI-overlay[optional]",
 ]
 typecheck = [
@@ -44,6 +45,7 @@ typecheck = [
     # TODO hmm need to include all dev type check deps from hpi somehow...
     "types-decorator",
     "pandas-stubs",
+    "types-pytz",
 
     { include-group = "testing" },
 ]
@@ -74,7 +76,8 @@ hpi = { git = "https://github.com/karlicoss/HPI" }
 packages = ["my"]
 # Search this overlay before the installed HPI.
 # Otherwise mypy only checks the HPI part of the `my` namespace package, see https://github.com/python/mypy/issues/16683
-mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
+# Use the example config for the settings supplied by the overlay user.
+mypy_path = ["$MYPY_CONFIG_FILE_DIR/src", "$MYPY_CONFIG_FILE_DIR/example-config"]
 
 pretty = true
 show_error_context = true
@@ -98,6 +101,9 @@ enable_error_code = [
     "unused-awaitable",
 ]
 
+
+[tool.ty.environment]
+extra-paths = ["example-config"]
 
 [tool.ty.rules]
 # suppressing rules/changing error level goes here
