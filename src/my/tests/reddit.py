@@ -71,11 +71,10 @@ def prepare():
     data = testdata() / 'hpi-testdata' / 'reddit'
     assert data.exists(), data
 
-    # note: deliberately using old config schema so we can test migrations
     class config:
         class reddit:
-            export_dir = data
-            please_keep_me = 'whatever'
+            class rexport:
+                export_path = data
 
     # NOTE ugh. need to .* prefix to account for my.orig.my.reddit... meh
     # TODO maybe not relevant anymore?? ^^
